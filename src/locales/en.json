@@ -1,0 +1,13 @@
+{
+  "hello": "Hello",
+  "language": "English",
+  "serverAddress": "Server Address",
+  "playerId": "Player Id",
+  "entity": "Entity",
+  "connect": "Connect",
+  "connecting": "Connecting",
+  "disconnect": "Disconnect",
+  "runScript": "Run Script",
+  "running": "Running",
+  "stopScript": "Stop Script"
+}

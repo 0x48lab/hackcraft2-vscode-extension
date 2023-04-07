@@ -1,0 +1,13 @@
+{
+  "hello": "こんにちは",
+  "language": "Japanese",
+  "serverAddress": "サーバーアドレス",
+  "playerId": "プレイヤーID",
+  "entity": "エンティティ",
+  "connect": "接続",
+  "connecting": "接続中",
+  "disconnect": "切断",
+  "runScript": "実行",
+  "running": "実行中",
+  "stopScript": "停止"
+}

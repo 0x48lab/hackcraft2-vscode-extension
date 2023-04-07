@@ -1,0 +1,96 @@
+import { Hackcraf2Settings, Hackcraf2SourceFile } from 'types/hackcraft2'
+import * as vscode from 'vscode'
+
+export const handleMessages = (webview: vscode.Webview) => {
+  receiveMessages(webview)
+
+  sendMessages(webview)
+}
+
+const receiveMessages = (webview: vscode.Webview) => {
+  webview.onDidReceiveMessage(async (message) => {
+    let openPath: vscode.Uri
+
+    switch (message.command) {
+      case 'loadConfig':
+        loadConfig(webview, message)
+        return
+      case 'saveConfig':
+        saveConfig(webview, message)
+        return
+      case 'getCurrentDocument':
+        getCurrentDocument(webview, message)
+        return
+      case 'openFileExample':
+        openPath = vscode.Uri.file(message.data)
+
+        vscode.workspace.openTextDocument(openPath).then(async (doc) => {
+          vscode.window.showTextDocument(doc)
+        })
+        return
+    }
+  })
+}
+
+const sendMessages = (webview: vscode.Webview) => {
+  vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+    if (!editor) return
+
+    const currentFile = editor.document.fileName
+
+    await webview.postMessage({
+      command: 'setCurrentFileExample',
+      data: currentFile,
+    })
+  })
+}
+
+// -----------------------------------
+
+const loadConfig = async (webview: vscode.Webview, message: any) => {
+  console.log('loadConfig', message.command)
+  // vscode.window.showInformationMessage('loadConfig');
+  const config = vscode.workspace.getConfiguration('8x9craft2')
+  const settings: Hackcraf2Settings = {
+    serverAddress: config.get('serverAddress'),
+    playerId: config.get('playerId'),
+  }
+  console.log('loadConfig settings', settings)
+
+  await webview.postMessage({
+    command: 'loadConfig',
+    data: settings,
+  })
+}
+
+const saveConfig = async (webview: vscode.Webview, message: any) => {
+  console.log('saveConfig', message.command)
+  // vscode.window.showInformationMessage('saveConfig');
+  const config = vscode.workspace.getConfiguration('8x9craft2')
+  const settings = message.data
+  console.log('saveConfig settings=', settings)
+
+  config.update('serverAddress', settings.serverAddress, vscode.ConfigurationTarget.Workspace, true)
+  config.update('playerId', settings.playerId, vscode.ConfigurationTarget.Workspace, true)
+
+  await webview.postMessage({
+    command: 'saveConfig',
+    data: { message: 'saved' },
+  })
+}
+
+const getCurrentDocument = (webview: vscode.Webview, message: any) => {
+  const editor = vscode.window.activeTextEditor
+  const document = editor?.document
+
+  const data: Hackcraf2SourceFile = {
+    fileName: document?.fileName,
+    languageId: document?.languageId,
+    code: document?.getText()
+  }
+
+  webview.postMessage({
+    command: 'getCurrentDocument',
+    data: data,
+  })
+}

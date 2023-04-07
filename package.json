@@ -1,0 +1,96 @@
+{
+  "name": "8x9craft2",
+  "displayName": "8x9craft2",
+  "description": "8x9craft2 client",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "concurrently \"tsc -p ./tsconfig.extension.json --skipLibCheck\" \"vite build\" \"tailwindcss -i ./src/assets/css/main.css -o ./dist/output.css\"",
+    "watch": "concurrently \"tsc -w -p ./tsconfig.extension.json --skipLibCheck\" \"vite build --watch\" \"tailwindcss -i ./src/assets/css/main.css -o ./dist/output.css --watch\"",
+    "lint": "eslint --fix \"src/**/*.{ts,vue}\"",
+    "format": "prettier -w src/*.ts && prettier -w src/**/*.{ts,vue}",
+    "fix": "yarn format && yarn lint",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "8x9craft2-view",
+          "title": "8x9craft2",
+          "icon": "src/assets/img/default.png"
+        }
+      ]
+    },
+    "views": {
+      "8x9craft2-view": [
+        {
+          "type": "webview",
+          "id": "base-view-sidebar",
+          "name": "8x9craft2-view Extension",
+          "icon": "src/assets/img/default.png",
+          "contextualTitle": "8x9craft2 Extension"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "%configuration-title%",
+      "properties": {
+        "8x9craft2.serverAddress": {
+          "type": "string",
+          "default": "localhost:25569",
+          "description": "%configuration-server-addresss-description%"
+        },
+        "8x9craft2.playerId": {
+          "type": "string",
+          "default": "",
+          "description": "%configuration-player-id-description%"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@intlify/unplugin-vue-i18n": "^0.8.1",
+    "@vitest/ui": "^0.26.2",
+    "vue": "^3.2.45",
+    "vue-i18n": "9",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@iconify-json/mdi": "^1.1.39",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/user-event": "^14.4.3",
+    "@testing-library/vue": "^6.6.1",
+    "@types/jest": "^29.2.4",
+    "@types/node": "^18.11.17",
+    "@types/vscode": "^1.73.0",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vitejs/plugin-vue": "^2.3.3",
+    "@vue/eslint-config-prettier": "^7.1.0",
+    "@vue/eslint-config-typescript": "^11.0.2",
+    "concurrently": "^7.6.0",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-vue": "^9.10.0",
+    "jsdom": "^20.0.3",
+    "prettier": "^2.8.7",
+    "tailwindcss": "^3.2.4",
+    "typescript": "^4.8.4",
+    "unplugin-icons": "^0.14.15",
+    "vite": "^2.9.14",
+    "vitest": "^0.26.2",
+    "vue-tsc": "^0.40.6"
+  }
+}
