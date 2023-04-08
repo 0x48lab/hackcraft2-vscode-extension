@@ -7,6 +7,7 @@
   "connect": "接続",
   "connecting": "接続中",
   "disconnect": "切断",
+  "pleaseConnect": "接続してください",
   "runScript": "実行",
   "running": "実行中",
   "stopScript": "停止",
