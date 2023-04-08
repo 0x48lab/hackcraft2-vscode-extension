@@ -254,7 +254,7 @@ const connect = () => {
   ws.onerror = (event: Event) => {
     changeStatus('Exeption!!')
     addLog('onError')
-    addLog(event)
+    addLog(JSON.stringify(event))
   }
 }
 
