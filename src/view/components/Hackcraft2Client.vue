@@ -52,7 +52,7 @@
         <div class="sm:w-1/3">
           <label
             class="block text-gray-500 font-bold sm:text-right mb-1 sm:mb-0 pr-4"
-            :for="props.id"
+            for="entity"
           >
             {{ t('entity') }}
           </label>
@@ -139,23 +139,22 @@
 </template>
 
 <script setup lang="ts">
-import { Hackcraf2SourceFile } from 'types/hackcraft2'
-import { e } from 'vitest/dist/index-40ebba2b'
-import { defineProps, withDefaults, ref, reactive } from 'vue'
-import { useI18n } from 'vue-i18n'
-const { t, locale } = useI18n()
-
 export interface Props {
   serverAddress?: string
   playerId?: string
 }
+
+import { Hackcraf2SourceFile } from 'types/hackcraft2'
+import { defineProps, withDefaults, ref, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t, locale } = useI18n()
 
 const props = withDefaults(defineProps<Props>(), {
   serverAddress: '',
   playerId: '',
 })
 
-const entities = ref([])
+const entities = ref<any[]>([])
 const entityUuid = ref('')
 const sourceFile: Hackcraf2SourceFile = reactive({
   fileName: '',
@@ -181,7 +180,7 @@ const addLog = (message: any) => {
 let ws: WebSocket | null = null
 
 const connect = () => {
-  changeStatus('connectiong...')
+  changeStatus('connecting...')
   addLog('connect')
 
   entities.value.splice(0, entities.value.length)
