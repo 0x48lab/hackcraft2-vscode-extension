@@ -1,17 +1,32 @@
 {
-  "publisher": "shibomb",
-  "repository": "https://github.com/shibomb/8x9craft2-vscode-extension",
   "name": "8x9craft2",
   "displayName": "8x9craft2",
   "description": "8x9craft2 client",
   "version": "0.0.1",
+  "publisher": "shibomb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shibomb/8x9craft2-vscode-extension"
+  },
+  "icon": "resources/logo.png",
   "engines": {
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages",
+    "Education"
+  ],
+  "keywords": [
+    "TypeScript",
+    "JavaScript",
+    "Python",
+    "8x9craft",
+    "8x9craft2",
+    "MineCraft",
+    "Learning"
   ],
   "activationEvents": [
+    "*",
     "onLanguage:typescript",
     "onLanguage:javascript",
     "onLanguage:python"
@@ -34,7 +49,7 @@
         {
           "id": "8x9craft2-view",
           "title": "8x9craft2",
-          "icon": "src/assets/img/default.png"
+          "icon": "resources/icon/default.png"
         }
       ]
     },
@@ -44,7 +59,7 @@
           "type": "webview",
           "id": "8x9craft-view-sidebar",
           "name": "8x9craft2-view Extension",
-          "icon": "src/assets/img/default.png",
+          "icon": "resources/icon/default.png",
           "contextualTitle": "8x9craft2 Extension"
         }
       ]

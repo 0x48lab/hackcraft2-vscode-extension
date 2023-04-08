@@ -35,6 +35,12 @@ Run the extension:
 - Press `f5` on the `extension.ts` to open a debug window (or select in menu "Debug" -> "Run Extension")
 - Navigate to the extension icon seen on the left sidebar (or open command palette (`Ctrl/Cmd + Shift + P`) and select `View: Vue 3 Base Extension` to open webview view.)
 
+Publish the extension:
+
+- `npm install -g @vscode/vsce`
+- `vsce package`
+- `vsce publish`
+
 ## Recommended VSCode Extensions
 
 - [Vitest](https://marketplace.visualstudio.com/items?itemName=ZixuanChen.vitest-explorer)
