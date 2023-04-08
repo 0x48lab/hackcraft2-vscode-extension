@@ -34,7 +34,7 @@
 ## 1. Enjoy Programming!
 
 - In Vscode
-- Create your code with JavaScript or Python.  
+- Create your code with Typescript, JavaScript or Python.  
   Like this:
 
 ```javascript:loopwalk.js
@@ -46,7 +46,7 @@ for (let i = 0; i < 4; i++) {
 }
 ```
 
-- Save it with file extension for programming language ".js" or ".py"
+- Save it with file extension for programming language ".ts", ".js" or ".py"
 
 ## 2. run!
 
