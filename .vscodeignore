@@ -8,3 +8,11 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+.circleci/**
+node_modules/
+tailwind.config.js
+*.vsix
+.eslintrc.yml
+.prettierrc.yml
+README_DEV.md
