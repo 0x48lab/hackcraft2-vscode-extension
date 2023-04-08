@@ -1,4 +1,6 @@
 {
+  "publisher": "shibomb",
+  "repository": "https://github.com/shibomb/8x9craft2-vscode-extension",
   "name": "8x9craft2",
   "displayName": "8x9craft2",
   "description": "8x9craft2 client",
@@ -8,6 +10,11 @@
   },
   "categories": [
     "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:python"
   ],
   "main": "./dist/extension.js",
   "scripts": {
@@ -35,7 +42,7 @@
       "8x9craft2-view": [
         {
           "type": "webview",
-          "id": "base-view-sidebar",
+          "id": "8x9craft-view-sidebar",
           "name": "8x9craft2-view Extension",
           "icon": "src/assets/img/default.png",
           "contextualTitle": "8x9craft2 Extension"

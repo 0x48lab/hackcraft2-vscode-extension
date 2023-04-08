@@ -9,5 +9,7 @@
   "disconnect": "切断",
   "runScript": "実行",
   "running": "実行中",
-  "stopScript": "停止"
+  "stopScript": "停止",
+  "status": "ステータス",
+  "log": "ログ"
 }

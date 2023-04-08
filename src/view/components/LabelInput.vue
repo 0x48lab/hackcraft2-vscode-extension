@@ -1,14 +1,14 @@
 <template>
-  <div class="sm:flex sm:items-center mb-4">
-    <div class="sm:w-1/3">
+  <div class="flex items-center mb-4">
+    <div class="w-1/3">
       <label
-        class="block text-gray-500 font-bold sm:text-right mb-1 sm:mb-0 pr-4"
+        class="block text-gray-500 font-bold text-right mb-1 mb-0 pr-4"
         :for="props.id"
       >
         {{ props.label }}
       </label>
     </div>
-    <div class="sm:w-2/3">
+    <div class="w-2/3">
       <input
         v-bind="$attrs"
         :id="props.id"

@@ -2,11 +2,11 @@ import * as vscode from 'vscode'
 import { handleMessages } from './messenger'
 
 export class BaseViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'base-view-sidebar'
+  public static readonly viewType = '8x9craft-view-sidebar'
 
   private _view?: vscode.WebviewView
 
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(private readonly _extensionUri: vscode.Uri) { }
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,

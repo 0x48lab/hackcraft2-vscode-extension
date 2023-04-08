@@ -1,52 +1,63 @@
-# Base Vue 3 Sidebar View Extension
+# 8x9craf2 Extension
 
-<p align="center">
-  <img src="./Screenshot.png" width="350" alt="Screenshot of the template">
-</p>
+8x9craft2 vscode entension.
 
-A Vue 3, Vite built template can be used to create a VSCode sidebar extension by providing a structure code and utilizing the vite build tool to compile and bundle the extension for deployment to VSCode. This template contains everything you need to get started building your extension right away. With this template, you can leverage the features and capabilities of Vue 3 to build powerful and interactive extensions for VSCode.
+# Prepare:
 
-## Includes:
-- [x] Typescript
-- [x] Vue 3
-- [x] Vite
-- [x] Tailwindcss
-	- [x] Vscode Default style Tailwind config
-- [x] Iconify via unplugin
-- [x] I18n via unplugin
-- [x] Vitest
-	- [x] Vitest UI
-- [x] Testing Library
-- [x] Decent Linting
-- [x] CircleCI
-- [x] Basic VSCode API Message Examples
+## 1. Show vscode extension view
 
-## Get Started:
+- In Vscode
+- Open your project folder.
+- Navigate to the extension icon seen on the left sidebar (or open command palette (`Ctrl/Cmd + Shift + P`) and select `8x9craft: Focus 8x9craft2-view  Extension View` to open webview view.)
+- Recommended: move view panel to Right-side on vscode window.
 
-Install dependencies:
-- `yarn install`
+## 2. Get server address
 
-Modify the following files:
-- `package.json`
-	- Replace all instances of `vue3baseextension` with your extension id
-	- Replace all instances of `vue-3-base-view` with a view ID
-	- Replace all instances of `Vue 3 Base Extension` with an extension name
-	- Replace `default.png` with your own extension icon
+- a) run your minecraft spigot server with 8x9craft2 pulugin.
+  e.g. "localhost:25569"
+- b) get from teacher.
+  e.g. "192.168.xxx.xxx:25569"
 
-Run the extension:
-- Enter `yarn watch` in the console
-- Press `f5` on the `extension.ts` to open a debug window (or select in menu "Debug" -> "Run Extension")
-- Navigate to the extension icon seen on the left sidebar (or open command palette (`Ctrl/Cmd + Shift + P`) and select `View: Vue 3 Base Extension` to open webview view.)
+## 3. Start Multi Play
 
-## Recommended VSCode Extensions
+- In minecraft java edition.
+- Start multi play.
 
-- [Vitest](https://marketplace.visualstudio.com/items?itemName=ZixuanChen.vitest-explorer)
-- [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
-- [I18n A11y](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally)
-- [Iconify Intellisense](https://marketplace.visualstudio.com/items?itemName=antfu.iconify)
+# Programming and Run:
 
-## References
-- [Webviews](https://code.visualstudio.com/api/extension-guides/webview)
-- [UX Guidelines](https://code.visualstudio.com/api/ux-guidelines/overview)
-- [Webview view API](https://code.visualstudio.com/api/references/vscode-api#WebviewView)
-- [Theme Guidelines](https://code.visualstudio.com/api/references/theme-color)
+## 0. Connect to server from extension
+
+- In Vscode 8x9craft2 extension view
+- Input "Server Address" and your minecraft "Player Id"
+- and click Connect button to login and get your entities.
+
+## 1. Enjoy Programming!
+
+- In Vscode
+- Create your code with JavaScript or Python.  
+  Like this:
+
+```javascript:loopwalk.js
+for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+        entity.forward()
+    }
+    entity.turnLeft()
+}
+```
+
+- Save it with file extension for programming language ".js" or ".py"
+
+## 2. run!
+
+- In Vscode 8x9craft2 extension view
+- Select your entity.
+- Click Run Script button to run.
+- And check your Minecraft ;-)
+
+# References
+
+- [8x9craft2](http://craft2.8x9.jp/ja/)
+- [8x9craft2 API ](http://wiki.craft2.8x9.jp/wiki/Category:APIs)
+
+- [8x9.jp](http://8x9.jp/)

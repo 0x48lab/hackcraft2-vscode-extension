@@ -9,5 +9,7 @@
   "disconnect": "Disconnect",
   "runScript": "Run Script",
   "running": "Running",
-  "stopScript": "Stop Script"
+  "stopScript": "Stop Script",
+  "status": "Status",
+  "log": "Log"
 }

@@ -1,19 +1,5 @@
 {
   "configuration-title": "8x9craft2 configurations",
   "configuration-server-addresss-description": "8x9craft2 Server Address e.g. localhost:25569",
-  "configuration-player-id-description": "Your Minecraft Player Id e.g. steve",
-  "ui-plugin-title": "8x9craft2",
-  "ui-server-addresss-title": "Server Address",
-  "ui-player-id-title": "Player Id",
-  "ui-target-title": "Target(s)",
-  "ui-connect-title": "Connect",
-  "ui-run-title": "Run",
-  "ui-stop-title": "Stop",
-  "message-connected": "Connected",
-  "message-connecting": "Connecting...",
-  "message-disconnected": "Disconnected",
-  "message-running": "Running...",
-  "message-finished": "Finished",
-  "message-stopping": "Stoping...",
-  "message-stopped": "Stoped"
+  "configuration-player-id-description": "Your Minecraft Player Id e.g. steve"
 }

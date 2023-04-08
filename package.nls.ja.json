@@ -1,19 +1,5 @@
 {
   "configuration-title": "8x9craft2 設定",
   "configuration-server-addresss-description": "8x9craft2サーバーのアドレス 例: localhost:25569",
-  "configuration-player-id-description": "マインクラフトのプレイヤーID 例: steve",
-  "ui-plugin-title": "8x9craft2",
-  "ui-server-addresss-title": "サーバーアドレス",
-  "ui-player-id-title": "プレイヤーID",
-  "ui-target-title": "ターゲット",
-  "ui-connect-title": "接続",
-  "ui-run-title": "実行",
-  "ui-stop-title": "停止",
-  "message-connected": "接続しました",
-  "message-connecting": "接続中...",
-  "message-disconnected": "切断しました",
-  "message-running": "実行中...",
-  "message-finished": "完了しました",
-  "message-stopping": "停止中...",
-  "message-stopped": "停止しました"
+  "configuration-player-id-description": "マインクラフトのプレイヤーID 例: steve"
 }
