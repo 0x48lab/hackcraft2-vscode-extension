@@ -1,5 +1,7 @@
 {
   "configuration-title": "8x9craft2 configurations",
-  "configuration-server-addresss-description": "8x9craft2 Server Address e.g. localhost:25569",
-  "configuration-player-id-description": "Your Minecraft Player Id e.g. steve"
+  "configuration-server-addresss-description": "8x9craft2 Server Address. e.g. localhost:25569",
+  "configuration-player-id-description": "Your Minecraft Player Id. e.g. steve",
+  "configuration-server-addresss-history-description": "8x9craft2 Server Address History (Auto update, but you can delete it).",
+  "configuration-player-id-history-description": "Your Minecraft Player Id History (Auto update, but you can delete it)."
 }

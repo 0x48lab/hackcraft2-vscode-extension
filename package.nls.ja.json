@@ -1,5 +1,7 @@
 {
   "configuration-title": "8x9craft2 設定",
-  "configuration-server-addresss-description": "8x9craft2サーバーのアドレス 例: localhost:25569",
-  "configuration-player-id-description": "マインクラフトのプレイヤーID 例: steve"
+  "configuration-server-addresss-description": "8x9craft2サーバーのアドレス。 例: localhost:25569",
+  "configuration-player-id-description": "マインクラフトのプレイヤーID。 例: steve",
+  "configuration-server-addresss-history-description": "8x9craft2サーバーのアドレス履歴。 (自動更新されますが、手動で削除もできます)",
+  "configuration-player-id-history-description": "マインクラフトのプレイヤーID履歴。 (自動更新されますが、手動で削除もできます)"
 }

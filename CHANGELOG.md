@@ -1,6 +1,6 @@
 # CHANGELOG
 
-# 0.0.2 2023-4-10
+# 0.0.3 2023-4-10
 
 - Future: Server Address History.
 - Future: Player Id History.
