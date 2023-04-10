@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center mb-0">
+  <div class="flex items-center mb-4">
     <div class="w-1/3">
       <label
         class="block text-gray-500 font-bold text-right mb-1 mb-0 pr-4"
@@ -9,13 +9,16 @@
       </label>
     </div>
     <div class="w-2/3">
-      <input
+      <select
         v-bind="$attrs"
         :id="props.id"
         v-model="text"
-        class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:border-purple-500"
-        type="text"
-      />
+        class="block appearance-none w-full text-black bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+      >
+        <option v-for="data in props.datalist" :key="data" :value="data">
+          {{ data }}
+        </option>
+      </select>
     </div>
   </div>
 </template>
@@ -28,11 +31,13 @@ const props = withDefaults(
     id: string
     label: string
     modelValue: string
+    datalist: string[]
   }>(),
   {
     id: '',
     label: '',
     modelValue: '',
+    datalist: undefined,
   }
 )
 

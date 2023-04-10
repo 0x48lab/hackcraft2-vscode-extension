@@ -1,4 +1,4 @@
-# 8x9craf2 Extension
+# 8x9craft2 Extension
 
 <p align="center">
   <img src="./Screenshot.png" width="350" alt="Screenshot of 8x9craft2">

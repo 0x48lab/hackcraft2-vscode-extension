@@ -13,11 +13,23 @@
         :label="t('serverAddress')"
         placeholder="e.g. localhost:25569"
       />
+      <LabelSelect
+        id="serverAddressHistory"
+        v-model="settings.serverAddress"
+        label=""
+        :datalist="settings.serverAddressHistory"
+      />
       <LabelInput
         id="playerId"
         v-model="settings.playerId"
         :label="t('playerId')"
         placeholder="e.g. hack-taro"
+      />
+      <LabelSelect
+        id="playerIdHistory"
+        v-model="settings.playerId"
+        label=""
+        :datalist="settings.playerIdHistory"
       />
     </div>
     <div class="w-full">
@@ -34,6 +46,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LabelInput from './components/LabelInput.vue'
+import LabelSelect from './components/LabelSelect.vue'
 import Hackcraft2Client from './components/Hackcraft2Client.vue'
 const hackcraft2Client = ref()
 
@@ -42,6 +55,8 @@ const { t, locale } = useI18n()
 const settings = reactive({
   serverAddress: '',
   playerId: '',
+  serverAddressHistory: [],
+  playerIdHistory: [],
   entities: [],
   entity: '',
 })
@@ -99,6 +114,8 @@ const onLoadConfig = (event: MessageEvent<any>) => {
 
   settings.serverAddress = data.serverAddress
   settings.playerId = data.playerId
+  settings.serverAddressHistory = data.serverAddressHistory
+  settings.playerIdHistory = data.playerIdHistory
 }
 
 const saveConfig = () => {
@@ -115,6 +132,8 @@ const onSaveConfig = (event: MessageEvent<any>) => {
   const message = event.data // The JSON data our extension sent
   console.log('onSaveConfig ' + message.command, message)
   log.value = JSON.stringify(message)
+
+  setTimeout(loadConfig, 500)
 }
 
 const onGetCurrentDocument = (event: MessageEvent<any>) => {

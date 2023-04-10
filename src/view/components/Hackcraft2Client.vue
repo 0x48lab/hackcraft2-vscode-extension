@@ -144,7 +144,7 @@ export interface Props {
   playerId?: string
 }
 
-import { Hackcraf2SourceFile } from 'types/hackcraft2'
+import { Hackcraft2SourceFile } from 'types/hackcraft2'
 import { defineProps, withDefaults, ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 const { t, locale } = useI18n()
@@ -156,7 +156,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const entities = ref<any[]>([])
 const entityUuid = ref('')
-const sourceFile: Hackcraf2SourceFile = reactive({
+const sourceFile: Hackcraft2SourceFile = reactive({
   fileName: '',
   languageId: '',
   code: '',

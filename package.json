@@ -77,6 +77,16 @@
           "type": "string",
           "default": "",
           "description": "%configuration-player-id-description%"
+        },
+        "8x9craft2.serverAddressHistory": {
+          "type": "string",
+          "default": "",
+          "description": "%configuration-server-addresss-history-description%"
+        },
+        "8x9craft2.playerIdHistory": {
+          "type": "string",
+          "default": "",
+          "description": "%configuration-player-id-history-description%"
         }
       }
     }

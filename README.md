@@ -1,4 +1,4 @@
-# 8x9craf2 Extension
+# 8x9craft2 Extension
 
 8x9craft2 vscode entension.
 

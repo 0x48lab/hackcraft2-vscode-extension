@@ -1,4 +1,4 @@
-import { Hackcraf2Settings, Hackcraf2SourceFile } from 'types/hackcraft2'
+import { Hackcraft2Settings, Hackcraft2SourceFile } from 'types/hackcraft2'
 import * as vscode from 'vscode'
 
 export const handleMessages = (webview: vscode.Webview) => {
@@ -51,9 +51,26 @@ const loadConfig = async (webview: vscode.Webview, message: any) => {
   console.log('loadConfig', message.command)
   // vscode.window.showInformationMessage('loadConfig');
   const config = vscode.workspace.getConfiguration('8x9craft2')
-  const settings: Hackcraf2Settings = {
+
+  let serverAddressHistory = []
+  const serverAddressHistoryData: any = config.get('serverAddressHistory')
+  if (serverAddressHistoryData) {
+    serverAddressHistory = serverAddressHistoryData.split(',')
+    serverAddressHistory = serverAddressHistory.filter((item: any) => item !== '')
+  }
+
+  let playerIdHistory = []
+  const playerIdHistoryData: any = config.get('playerIdHistory')
+  if (playerIdHistoryData) {
+    playerIdHistory = playerIdHistoryData.split(',')
+    playerIdHistory = playerIdHistory.filter((item: any) => item !== '')
+  }
+
+  const settings: Hackcraft2Settings = {
     serverAddress: config.get('serverAddress'),
     playerId: config.get('playerId'),
+    serverAddressHistory: serverAddressHistory,
+    playerIdHistory: playerIdHistory,
   }
   console.log('loadConfig settings', settings)
 
@@ -73,6 +90,14 @@ const saveConfig = async (webview: vscode.Webview, message: any) => {
   config.update('serverAddress', settings.serverAddress, vscode.ConfigurationTarget.Workspace, true)
   config.update('playerId', settings.playerId, vscode.ConfigurationTarget.Workspace, true)
 
+  let serverAddressHistory: any = config.get('serverAddressHistory', '')
+  serverAddressHistory = settings.serverAddress + ',' + serverAddressHistory.replace(settings.serverAddress + ',', '')
+  config.update('serverAddressHistory', serverAddressHistory, vscode.ConfigurationTarget.Workspace, true)
+
+  let playerIdHistory: any = config.get('playerIdHistory', '')
+  playerIdHistory = settings.playerId + ',' + playerIdHistory.replace(settings.playerId + ',', '')
+  config.update('playerIdHistory', playerIdHistory, vscode.ConfigurationTarget.Workspace, true)
+
   await webview.postMessage({
     command: 'saveConfig',
     data: { message: 'saved' },
@@ -83,7 +108,7 @@ const getCurrentDocument = (webview: vscode.Webview, message: any) => {
   const editor = vscode.window.activeTextEditor
   const document = editor?.document
 
-  const data: Hackcraf2SourceFile = {
+  const data: Hackcraft2SourceFile = {
     fileName: document?.fileName,
     languageId: document?.languageId,
     code: document?.getText()
