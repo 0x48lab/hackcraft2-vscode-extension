@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full mb-4">
+  <div v-if="tabName == 'connection'" class="w-full mb-4">
     <div class="w-full">
       <div class="flex items-center mb-4">
         <div class="w-1/3"></div>
@@ -46,7 +46,7 @@
       </div>
     </div>
   </div>
-  <div class="sm:flex sm:items-center mb-4">
+  <div v-if="tabName == 'runner'" class="sm:flex sm:items-center mb-4">
     <div class="w-full">
       <div class="sm:flex sm:items-center mb-4">
         <div class="sm:w-1/3">
@@ -142,6 +142,7 @@
 export interface Props {
   serverAddress?: string
   playerId?: string
+  tabName?: string
 }
 
 import { Hackcraft2SourceFile } from 'types/hackcraft2'
@@ -152,6 +153,7 @@ const { t, locale } = useI18n()
 const props = withDefaults(defineProps<Props>(), {
   serverAddress: '',
   playerId: '',
+  tabName: '',
 })
 
 const entities = ref<any[]>([])
