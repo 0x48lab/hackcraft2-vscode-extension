@@ -66,6 +66,7 @@
             v-model="entityUuid"
             :disabled="entities.length == 0"
             class="block appearance-none w-full text-black bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+            @change="entityChanged"
           >
             <option
               v-for="entity in entities"
@@ -235,22 +236,9 @@ const connect = () => {
       }
     } else if (json.type === 'status') {
       useLog().info(event.data.toString())
-      // atach(uuid) をコールするとStatusが返る
-      //request
-      //{
-      //  "type": "attach",
-      //      "data":{
-      //          "entity": entity,
-      //      }
-      //  }
-      //response
-      //{
-      //  "type": "status",
-      //      "data":{
-      //        "entityUuid": entityUuid, //実行中のスクリプトのエンティティUUID
-      //        "isRunning": isRunning,   //実行中かどうか？
-      //      }
-      //}
+
+      isError.value = false
+      isRunning.value = json.data.isRunning
     } else if (json.type === 'message') {
       useLog().info(event.data.toString())
       // nothing for message
@@ -353,6 +341,19 @@ const stopScript = () => {
 
   const message = {
     type: 'stop',
+    data: {
+      entity: entityUuid.value,
+    },
+  }
+  ws?.send(JSON.stringify(message))
+}
+
+const entityChanged = (event: any) => {
+  useLog().info('#entityChanged')
+  // useLog().info(entityUuid.value)
+
+  const message = {
+    type: 'attach',
     data: {
       entity: entityUuid.value,
     },
