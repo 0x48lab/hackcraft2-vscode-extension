@@ -87,6 +87,8 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useLog } from '../composables/consoleLog'
+
 import { useSettingStore } from '../stores/settings'
 import { useSourceFileStore } from '../stores/sourceFiles'
 
@@ -104,6 +106,7 @@ const currentFile = ref('')
 const lastFile = ref('')
 
 onMounted(() => {
+  useLog().info('8x9craft2 extension mounted')
   settingStore.load()
 })
 

@@ -85,7 +85,7 @@
           <button
             v-if="!isRunning"
             class="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 inline-flex items-center"
-            @click="runScript"
+            @click="prepareRunScript"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -130,11 +130,11 @@
     <p class="block text-gray-500 font-bold sm:text-right mb-1 sm:mb-0 pr-4">
       {{ t('status') }}
     </p>
-    <div class="mb-4">{{ status }}</div>
-    <p class="block text-gray-500 font-bold sm:text-right mb-1 sm:mb-0 pr-4">
-      {{ t('log') }}
-    </p>
-    <textarea rows="10" v-model="log"> </textarea>
+    <div
+      :class="'mb-4 ' + (!isError ? 'text-white' : 'text-red-500')"
+      style="white-space: pre-wrap"
+      v-text="status"
+    ></div>
   </div>
 </template>
 
@@ -144,6 +144,9 @@ export interface Props {
 }
 
 import { defineProps, withDefaults, ref, reactive } from 'vue'
+
+import { useLog } from '../../composables/consoleLog'
+
 import { useI18n } from 'vue-i18n'
 import { useSettingStore } from '../../stores/settings'
 import { useSourceFileStore } from '../../stores/sourceFiles'
@@ -160,18 +163,13 @@ const entities = ref<any[]>([])
 const entityUuid = ref('')
 
 const isRunning = ref(false)
+const isError = ref(false)
 
 const status = ref('')
-const log = ref('')
 
 const changeStatus = (message: any) => {
-  console.log(message)
+  useLog().info(message)
   status.value = message
-}
-
-const addLog = (message: any) => {
-  console.log(message)
-  log.value = log.value + '\n' + message
 }
 
 // --------------------------------------------
@@ -181,10 +179,11 @@ const addLog = (message: any) => {
 let ws: WebSocket | null = null
 
 const connect = () => {
+  useLog().info('#connect')
   changeStatus('connecting...')
-  addLog('connect')
 
   entities.value.splice(0, entities.value.length)
+  isError.value = false
   isRunning.value = false
 
   if (ws != null) {
@@ -194,8 +193,8 @@ const connect = () => {
   ws = new WebSocket('ws://' + settingStore.setting.serverAddress + '/ws')
 
   ws.onopen = () => {
+    useLog().info('#onopen')
     changeStatus('Connected.')
-    addLog('onOpen')
 
     // save config
     settingStore.save()
@@ -211,20 +210,22 @@ const connect = () => {
   }
 
   ws.onclose = () => {
+    useLog().info('#onclose')
     changeStatus('Disconnected.')
-    addLog('onClose')
+
     ws = null
     entities.value.splice(0, entities.value.length)
     isRunning.value = false
   }
 
   ws.onmessage = (event: MessageEvent) => {
-    addLog('onMessage' + JSON.stringify(event))
+    useLog().info('#onmessage')
 
     const json = JSON.parse(event.data.toString())
-    addLog('websocket.onmessage data=' + event.data.toString())
 
     if (json.type === 'entities') {
+      useLog().info(event.data.toString())
+
       entities.value.splice(0, entities.value.length)
       const newEntities: [] = json.data
       if (newEntities.length > 0) {
@@ -233,6 +234,7 @@ const connect = () => {
         entityUuid.value = first.entityUuid
       }
     } else if (json.type === 'status') {
+      useLog().info(event.data.toString())
       // atach(uuid) をコールするとStatusが返る
       //request
       //{
@@ -247,38 +249,47 @@ const connect = () => {
       //      "data":{
       //        "entityUuid": entityUuid, //実行中のスクリプトのエンティティUUID
       //        "isRunning": isRunning,   //実行中かどうか？
-      //      }  
+      //      }
       //}
     } else if (json.type === 'message') {
+      useLog().info(event.data.toString())
       // nothing for message
     } else if (json.type === 'result') {
-      changeStatus('Finished.' + '\n' + json.data)
+      useLog().info(event.data.toString())
+
+      if (!isError.value) {
+        changeStatus('Finished.' + '\n' + json.data)
+      }
       isRunning.value = false
     } else if (json.type === 'error') {
+      useLog().error(event.data.toString())
       changeStatus('Errored.' + '\n' + json.data)
       isRunning.value = false
+      isError.value = true
     } else if (json.type === 'code') {
+      useLog().info(event.data.toString())
       // nothing for code
     }
   }
 
   ws.onerror = (event: Event) => {
+    useLog().error('#onerror')
+    useLog().error(event)
     changeStatus('Exeption!!')
-    addLog('onError')
-    addLog(JSON.stringify(event))
   }
 }
 
 const disconnect = () => {
+  useLog().error('#disconnect')
   changeStatus('Disconnecting...')
-  addLog('disconnect')
   ws?.close()
 }
 
-const runScript = () => {
-  changeStatus('Running...')
-  addLog('runScript')
+const prepareRunScript = () => {
+  useLog().error('#prepareRunScript')
+  changeStatus('Prepare for running...')
 
+  isError.value = false
   isRunning.value = true
 
   sourceFileStore.getDocument()
@@ -305,20 +316,22 @@ sourceFileStore.$onAction(
 
       // onGetCurrentDocument called from message dispather on App.vue
       if (name === 'onGetCurrentDocument') {
-        addLog('sourceFileStore.$onAction#after onGetCurrentDocument')
-        runScriptAfterSetText()
+        useLog().info('#onGetCurrentDocument')
+        runScript()
       }
     })
 
     onError((error) => {
       // actionでエラーが発生したときに行われる処理
+      useLog().error(error)
       console.error(error)
     })
   }
 )
 
-const runScriptAfterSetText = () => {
-  addLog('runScriptAfterSetText')
+const runScript = () => {
+  useLog().info('#runScript')
+  changeStatus('Running...')
   const message = {
     type: 'run',
     data: {
@@ -328,18 +341,21 @@ const runScriptAfterSetText = () => {
       code: sourceFileStore.sourceFile.code,
     },
   }
+
+  useLog().info(message)
+
   ws?.send(JSON.stringify(message))
 }
 
 const stopScript = () => {
+  useLog().info('#stopScript')
   changeStatus('Stopping...')
-  addLog('stopScript')
 
   const message = {
     type: 'stop',
-    data:{
-            "entity": entityUuid.value,
-        }
+    data: {
+      entity: entityUuid.value,
+    },
   }
   ws?.send(JSON.stringify(message))
 }

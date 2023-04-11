@@ -11,6 +11,9 @@ const receiveMessages = (webview: vscode.Webview) => {
     let openPath: vscode.Uri
 
     switch (message.command) {
+      case 'consoleLog':
+        consoleLog(webview, message)
+        return
       case 'loadConfig':
         loadConfig(webview, message)
         return
@@ -45,6 +48,29 @@ const sendMessages = (webview: vscode.Webview) => {
 }
 
 // -----------------------------------
+const consoleLog = async (webview: vscode.Webview, message: any) => {
+  console.log('consoleLog', message)
+  //Create output channel
+  const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("8x9craft2", { log: true });
+  log.show(true);
+
+  switch (message.level) {
+    case 'debug':
+      log.info('[debug] --- start ---')
+      log.info(message.data)
+      log.info('[debug] --- end ---')
+      break
+    case 'warn':
+      log.warn(message.data)
+      break
+    case 'error':
+      log.error(message.data)
+      break
+    default:
+      log.info(message.data)
+      break
+  }
+}
 
 const loadConfig = async (webview: vscode.Webview, message: any) => {
   console.log('loadConfig', message.command)
@@ -107,8 +133,11 @@ const getCurrentDocument = async (webview: vscode.Webview, message: any) => {
   const editor = vscode.window.activeTextEditor
   const document = editor?.document
 
+  const fileName = document?.fileName.replace(vscode.workspace.workspaceFolders?.[0].uri.path + '', '')
+  console.log(fileName)
+
   const data = {
-    fileName: document?.fileName,
+    fileName: fileName,
     languageId: document?.languageId,
     code: document?.getText()
   }

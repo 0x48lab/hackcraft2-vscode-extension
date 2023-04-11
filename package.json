@@ -68,6 +68,17 @@
       "type": "object",
       "title": "%configuration-title%",
       "properties": {
+        "8x9craft2.logLevel": {
+          "type": "string",
+          "default": "info",
+          "enum": [
+            "error",
+            "warn",
+            "info",
+            "debug"
+          ],
+          "description": "configuration-log-level-description"
+        },
         "8x9craft2.serverAddress": {
           "type": "string",
           "default": "localhost:25569",
