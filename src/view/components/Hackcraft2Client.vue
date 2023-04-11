@@ -232,14 +232,25 @@ const connect = () => {
         const first: any = entities.value[0]
         entityUuid.value = first.entityUuid
       }
+    } else if (json.type === 'status') {
+      // atach(uuid) をコールするとStatusが返る
+      //request
+      //{
+      //  "type": "attach",
+      //      "data":{
+      //          "entity": entity,
+      //      }
+      //  }
+      //response
+      //{
+      //  "type": "status",
+      //      "data":{
+      //        "entityUuid": entityUuid, //実行中のスクリプトのエンティティUUID
+      //        "isRunning": isRunning,   //実行中かどうか？
+      //      }  
+      //}
     } else if (json.type === 'message') {
-      if (
-        json.data == 'success' ||
-        json.data == 'interrupted' ||
-        /Exception/.test(json.data)
-      ) {
-        isRunning.value = false
-      }
+      // nothing for message
     } else if (json.type === 'result') {
       changeStatus('Finished.' + '\n' + json.data)
       isRunning.value = false
@@ -326,6 +337,9 @@ const stopScript = () => {
 
   const message = {
     type: 'stop',
+    data:{
+            "entity": entityUuid.value,
+        }
   }
   ws?.send(JSON.stringify(message))
 }
