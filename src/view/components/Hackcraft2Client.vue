@@ -140,29 +140,24 @@
 
 <script setup lang="ts">
 export interface Props {
-  serverAddress?: string
-  playerId?: string
   tabName?: string
 }
 
-import { Hackcraft2SourceFile } from 'types/hackcraft2'
 import { defineProps, withDefaults, ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useSettingStore } from '../../stores/settings'
+import { useSourceFileStore } from '../../stores/sourceFiles'
+
 const { t, locale } = useI18n()
+const settingStore = useSettingStore()
+const sourceFileStore = useSourceFileStore()
 
 const props = withDefaults(defineProps<Props>(), {
-  serverAddress: '',
-  playerId: '',
   tabName: '',
 })
 
 const entities = ref<any[]>([])
 const entityUuid = ref('')
-const sourceFile: Hackcraft2SourceFile = reactive({
-  fileName: '',
-  languageId: '',
-  code: '',
-})
 
 const isRunning = ref(false)
 
@@ -179,6 +174,10 @@ const addLog = (message: any) => {
   log.value = log.value + '\n' + message
 }
 
+// --------------------------------------------
+// WebSocket processes with 8x9craft server
+// --------------------------------------------
+
 let ws: WebSocket | null = null
 
 const connect = () => {
@@ -192,20 +191,20 @@ const connect = () => {
     ws.close()
   }
 
-  ws = new WebSocket('ws://' + props.serverAddress + '/ws')
+  ws = new WebSocket('ws://' + settingStore.setting.serverAddress + '/ws')
 
   ws.onopen = () => {
     changeStatus('Connected.')
     addLog('onOpen')
 
     // save config
-    saveConfig()
+    settingStore.save()
 
     // login
     const message = {
       type: 'login',
       data: {
-        loginId: props.playerId,
+        loginId: settingStore.setting.playerId,
       },
     }
     ws?.send(JSON.stringify(message))
@@ -259,29 +258,10 @@ const connect = () => {
   }
 }
 
-const saveConfig = () => {
-  vscode.postMessage({
-    command: 'saveConfig',
-    data: {
-      serverAddress: props.serverAddress,
-      playerId: props.playerId,
-    },
-  })
-}
-
 const disconnect = () => {
   changeStatus('Disconnecting...')
   addLog('disconnect')
   ws?.close()
-}
-
-const getDocument = () => {
-  addLog('getDocument')
-
-  vscode.postMessage({
-    command: 'getCurrentDocument',
-    data: {},
-  })
 }
 
 const runScript = () => {
@@ -290,26 +270,51 @@ const runScript = () => {
 
   isRunning.value = true
 
-  getDocument()
+  sourceFileStore.getDocument()
 }
 
-const setDocument = (data: any) => {
-  addLog('setDocument' + JSON.stringify(data))
+sourceFileStore.$onAction(
+  ({
+    name, // 実行されたactionの名前
+    store, // Storeのインスタンス。`myStore`に同じ
+    args, // actionに渡された引数の配列
+    after, // actionの完了後（Promiseであれば`resolve()`された後）に実行する処理
+    onError, // actionで例外が投げられたとき（Promiseであれば`reject()`されたとき）に実行する処理
+  }) => {
+    // action実行前に行われる処理
+    // console.log({
+    //   name,
+    //   store,
+    //   args,
+    // })
 
-  Object.assign(sourceFile, data)
+    after((result) => {
+      // action実行後に行われる処理
+      // console.log(result)
 
-  runScriptAfterSetText()
-}
+      // onGetCurrentDocument called from message dispather on App.vue
+      if (name === 'onGetCurrentDocument') {
+        addLog('sourceFileStore.$onAction#after onGetCurrentDocument')
+        runScriptAfterSetText()
+      }
+    })
+
+    onError((error) => {
+      // actionでエラーが発生したときに行われる処理
+      console.error(error)
+    })
+  }
+)
 
 const runScriptAfterSetText = () => {
   addLog('runScriptAfterSetText')
   const message = {
     type: 'run',
     data: {
-      language: sourceFile.languageId,
-      name: sourceFile.fileName,
+      language: sourceFileStore.sourceFile.languageId,
+      name: sourceFileStore.sourceFile.fileName,
       entity: entityUuid.value,
-      code: sourceFile.code,
+      code: sourceFileStore.sourceFile.code,
     },
   }
   ws?.send(JSON.stringify(message))
@@ -324,12 +329,4 @@ const stopScript = () => {
   }
   ws?.send(JSON.stringify(message))
 }
-
-defineExpose({
-  // connect,
-  // disconnect,
-  // runScript,
-  // stopScript,
-  setDocument,
-})
 </script>

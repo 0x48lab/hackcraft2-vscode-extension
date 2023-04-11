@@ -1,4 +1,3 @@
-import { Hackcraft2Settings, Hackcraft2SourceFile } from 'types/hackcraft2'
 import * as vscode from 'vscode'
 
 export const handleMessages = (webview: vscode.Webview) => {
@@ -66,7 +65,7 @@ const loadConfig = async (webview: vscode.Webview, message: any) => {
     playerIdHistory = playerIdHistory.filter((item: any) => item !== '')
   }
 
-  const settings: Hackcraft2Settings = {
+  const settings = {
     serverAddress: config.get('serverAddress'),
     playerId: config.get('playerId'),
     serverAddressHistory: serverAddressHistory,
@@ -75,7 +74,7 @@ const loadConfig = async (webview: vscode.Webview, message: any) => {
   console.log('loadConfig settings', settings)
 
   await webview.postMessage({
-    command: 'loadConfig',
+    command: 'onLoadConfig',
     data: settings,
   })
 }
@@ -99,23 +98,23 @@ const saveConfig = async (webview: vscode.Webview, message: any) => {
   config.update('playerIdHistory', playerIdHistory, vscode.ConfigurationTarget.Workspace, true)
 
   await webview.postMessage({
-    command: 'saveConfig',
+    command: 'onSaveConfig',
     data: { message: 'saved' },
   })
 }
 
-const getCurrentDocument = (webview: vscode.Webview, message: any) => {
+const getCurrentDocument = async (webview: vscode.Webview, message: any) => {
   const editor = vscode.window.activeTextEditor
   const document = editor?.document
 
-  const data: Hackcraft2SourceFile = {
+  const data = {
     fileName: document?.fileName,
     languageId: document?.languageId,
     code: document?.getText()
   }
 
-  webview.postMessage({
-    command: 'getCurrentDocument',
+  await webview.postMessage({
+    command: 'onGetCurrentDocument',
     data: data,
   })
 }

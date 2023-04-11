@@ -1,9 +1,9 @@
 import { render, fireEvent } from '@testing-library/vue'
-import Button from './Button.vue'
+import Button from '../atoms/Button.vue'
 
 describe('tests', () => {
 	test('normal imports as expected', async () => {
-		const component = await import('./Button.vue')
+		const component = await import('../atoms/Button.vue')
 		expect(component).toBeDefined()
 	})
 

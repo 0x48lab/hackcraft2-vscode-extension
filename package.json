@@ -94,6 +94,7 @@
   "dependencies": {
     "@intlify/unplugin-vue-i18n": "^0.8.1",
     "@vitest/ui": "^0.26.2",
+    "pinia": "^2.0.34",
     "vue": "^3.2.45",
     "vue-i18n": "9",
     "ws": "^8.13.0"

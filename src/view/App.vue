@@ -76,39 +76,9 @@
       </div>
     </div>
 
-    <div v-if="tabName == 'connection'" class="w-full">
-      <LabelInput
-        id="serverAddress"
-        v-model="settings.serverAddress"
-        :label="t('serverAddress')"
-        placeholder="e.g. localhost:25569"
-      />
-      <LabelSelect
-        id="serverAddressHistory"
-        v-model="settings.serverAddress"
-        label=""
-        :datalist="settings.serverAddressHistory"
-      />
-      <LabelInput
-        id="playerId"
-        v-model="settings.playerId"
-        :label="t('playerId')"
-        placeholder="e.g. hack-taro"
-      />
-      <LabelSelect
-        id="playerIdHistory"
-        v-model="settings.playerId"
-        label=""
-        :datalist="settings.playerIdHistory"
-      />
-    </div>
     <div class="w-full">
-      <Hackcraft2Client
-        ref="hackcraft2Client"
-        :tabName="tabName"
-        :server-address="settings.serverAddress"
-        :player-id="settings.playerId"
-      />
+      <Hackcraft2ConnectionInput :tabName="tabName" />
+      <Hackcraft2Client :tabName="tabName" />
     </div>
   </div>
 </template>
@@ -116,33 +86,28 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import LabelInput from './components/LabelInput.vue'
-import LabelSelect from './components/LabelSelect.vue'
+
+import { useSettingStore } from '../stores/settings'
+import { useSourceFileStore } from '../stores/sourceFiles'
+
+import Hackcraft2ConnectionInput from './components/Hackcraft2ConnectionInput.vue'
 import Hackcraft2Client from './components/Hackcraft2Client.vue'
-const hackcraft2Client = ref()
 
 const { t, locale } = useI18n()
 
-const settings = reactive({
-  serverAddress: '',
-  playerId: '',
-  serverAddressHistory: [],
-  playerIdHistory: [],
-  entities: [],
-  entity: '',
-})
+const settingStore = useSettingStore()
+const sourceFileStore = useSourceFileStore()
 
 const tabName = ref('connection')
 
 const currentFile = ref('')
 const lastFile = ref('')
-const log = ref('')
 
 onMounted(() => {
-  loadConfig()
+  settingStore.load()
 })
 
-// Example of handling messages sent from the extension to the webview
+// handling messages sent from the extension to the webview
 window.addEventListener('message', (event) => {
   const message = event.data // The JSON data our extension sent
   console.log('message received: ' + message.command)
@@ -152,67 +117,23 @@ window.addEventListener('message', (event) => {
       lastFile.value = currentFile.value
       currentFile.value = message.data
       return
-    case 'loadConfig':
-      onLoadConfig(event)
+    case 'onLoadConfig':
+      settingStore.onLoad(event)
       return
-    case 'saveConfig':
-      onSaveConfig(event)
+    case 'onSaveConfig':
+      settingStore.onSave(event)
       return
-    case 'getCurrentDocument':
-      onGetCurrentDocument(event)
+    case 'onGetCurrentDocument':
+      sourceFileStore.onGetCurrentDocument(event)
       return
   }
 })
 
-// Example of sending a message from the webview to the extension
+// sending a message from the webview to the extension
 const openLastFile = () => {
   vscode.postMessage({
     command: 'openFileExample',
     data: lastFile.value,
   })
-}
-
-const loadConfig = () => {
-  vscode.postMessage({
-    command: 'loadConfig',
-    data: {},
-  })
-}
-
-const onLoadConfig = (event: MessageEvent<any>) => {
-  const message = event.data // The JSON data our extension sent
-  console.log('onLoadConfig ' + message.command, message)
-  log.value = JSON.stringify(message)
-  const data = message.data
-
-  settings.serverAddress = data.serverAddress
-  settings.playerId = data.playerId
-  settings.serverAddressHistory = data.serverAddressHistory
-  settings.playerIdHistory = data.playerIdHistory
-}
-
-const saveConfig = () => {
-  vscode.postMessage({
-    command: 'saveConfig',
-    data: {
-      serverAddress: settings.serverAddress,
-      playerId: settings.playerId,
-    },
-  })
-}
-
-const onSaveConfig = (event: MessageEvent<any>) => {
-  const message = event.data // The JSON data our extension sent
-  console.log('onSaveConfig ' + message.command, message)
-  log.value = JSON.stringify(message)
-
-  setTimeout(loadConfig, 500)
-}
-
-const onGetCurrentDocument = (event: MessageEvent<any>) => {
-  const message = event.data // The JSON data our extension sent
-  console.log('onGetCurrentDocument ' + message.command, message)
-
-  hackcraft2Client.value.setDocument(message.data)
 }
 </script>
