@@ -48,11 +48,21 @@ const sendMessages = (webview: vscode.Webview) => {
 }
 
 // -----------------------------------
+const levelOrder = ['error', 'warn', 'info', 'debug'];
+const shouldLog = (targetLevel: string): boolean => {
+  const config = vscode.workspace.getConfiguration('8x9craft2')
+  const settingsLogLevel = config.get('logLevel', 'info')
+
+  return levelOrder.indexOf(targetLevel) <= levelOrder.indexOf(settingsLogLevel);
+}
+
 const consoleLog = async (webview: vscode.Webview, message: any) => {
   console.log('consoleLog', message)
   //Create output channel
   const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("8x9craft2", { log: true });
   log.show(true);
+
+  if (!shouldLog(message.level)) return
 
   switch (message.level) {
     case 'debug':

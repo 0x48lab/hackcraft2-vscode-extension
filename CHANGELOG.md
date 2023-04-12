@@ -1,5 +1,10 @@
 # CHANGELOG
 
+# 0.0.6 2023-4-12
+
+- Add: Log Level setting.
+- Add: Show conosole.log result from 8x9craft2 server.
+
 # 0.0.5 2023-4-12
 
 - Add: Output logs to VSCode output pain.

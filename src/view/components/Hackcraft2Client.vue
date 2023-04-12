@@ -180,7 +180,7 @@ const changeStatus = (message: any) => {
 let ws: WebSocket | null = null
 
 const connect = () => {
-  useLog().info('#connect')
+  useLog().debug('#connect')
   changeStatus('connecting...')
 
   entities.value.splice(0, entities.value.length)
@@ -194,7 +194,7 @@ const connect = () => {
   ws = new WebSocket('ws://' + settingStore.setting.serverAddress + '/ws')
 
   ws.onopen = () => {
-    useLog().info('#onopen')
+    useLog().debug('#onopen')
     changeStatus('Connected.')
 
     // save config
@@ -211,7 +211,7 @@ const connect = () => {
   }
 
   ws.onclose = () => {
-    useLog().info('#onclose')
+    useLog().debug('#onclose')
     changeStatus('Disconnected.')
 
     ws = null
@@ -220,7 +220,7 @@ const connect = () => {
   }
 
   ws.onmessage = (event: MessageEvent) => {
-    useLog().info('#onmessage')
+    useLog().debug('#onmessage :' + event.data.toString())
 
     const json = JSON.parse(event.data.toString())
 
@@ -240,11 +240,9 @@ const connect = () => {
       isError.value = false
       isRunning.value = json.data.isRunning
     } else if (json.type === 'message') {
-      useLog().info(event.data.toString())
-      // nothing for message
+      useLog().info(json.data)
     } else if (json.type === 'result') {
       useLog().info(event.data.toString())
-
       if (!isError.value) {
         changeStatus('Finished.' + '\n' + json.data)
       }
@@ -268,13 +266,13 @@ const connect = () => {
 }
 
 const disconnect = () => {
-  useLog().error('#disconnect')
+  useLog().debug('#disconnect')
   changeStatus('Disconnecting...')
   ws?.close()
 }
 
 const prepareRunScript = () => {
-  useLog().error('#prepareRunScript')
+  useLog().debug('#prepareRunScript')
   changeStatus('Prepare for running...')
 
   isError.value = false
@@ -304,7 +302,7 @@ sourceFileStore.$onAction(
 
       // onGetCurrentDocument called from message dispather on App.vue
       if (name === 'onGetCurrentDocument') {
-        useLog().info('#onGetCurrentDocument')
+        useLog().debug('#onGetCurrentDocument')
         runScript()
       }
     })
@@ -318,7 +316,7 @@ sourceFileStore.$onAction(
 )
 
 const runScript = () => {
-  useLog().info('#runScript')
+  useLog().debug('#runScript')
   changeStatus('Running...')
   const message = {
     type: 'run',
@@ -336,7 +334,7 @@ const runScript = () => {
 }
 
 const stopScript = () => {
-  useLog().info('#stopScript')
+  useLog().debug('#stopScript')
   changeStatus('Stopping...')
 
   const message = {
@@ -349,8 +347,8 @@ const stopScript = () => {
 }
 
 const entityChanged = (event: any) => {
-  useLog().info('#entityChanged')
-  // useLog().info(entityUuid.value)
+  useLog().debug('#entityChanged')
+  useLog().info('entity Changed:' + entityUuid.value)
 
   const message = {
     type: 'attach',
