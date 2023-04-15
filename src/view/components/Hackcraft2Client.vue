@@ -5,9 +5,9 @@
         <div class="w-1/3"></div>
         <div class="w-2/3">
           <button
-            v-if="entities.length == 0"
+            v-if="ws == null"
             class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center"
-            @click="connect"
+            @click="connect(true)"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -165,6 +165,7 @@ const entityUuid = ref('')
 
 const isRunning = ref(false)
 const isError = ref(false)
+const retryStatus = ref(0)
 
 const status = ref('')
 
@@ -179,19 +180,23 @@ const changeStatus = (message: any) => {
 
 let ws: WebSocket | null = null
 
-const connect = () => {
+const connect = (isUseSSL: boolean) => {
   useLog().debug('#connect')
   changeStatus('connecting...')
 
   entities.value.splice(0, entities.value.length)
   isError.value = false
   isRunning.value = false
+  retryStatus.value = 0
 
   if (ws != null) {
     ws.close()
   }
 
-  ws = new WebSocket('ws://' + settingStore.setting.serverAddress + '/ws')
+  const protocol = isUseSSL ? 'wss' : 'ws'
+  ws = new WebSocket(
+    protocol + '://' + settingStore.setting.serverAddress + '/ws'
+  )
 
   ws.onopen = () => {
     useLog().debug('#onopen')
@@ -217,6 +222,13 @@ const connect = () => {
     ws = null
     entities.value.splice(0, entities.value.length)
     isRunning.value = false
+
+    if (isUseSSL && retryStatus.value == 1) {
+      useLog().info('#onclose. retring without ssl')
+      retryStatus.value++
+      connect(false)
+      return
+    }
   }
 
   ws.onmessage = (event: MessageEvent) => {
@@ -261,6 +273,13 @@ const connect = () => {
   ws.onerror = (event: Event) => {
     useLog().error('#onerror')
     useLog().error(event)
+
+    if (status.value == 'connecting...' && isUseSSL && retryStatus.value == 0) {
+      useLog().info('#onerror. will retry without ssl')
+      retryStatus.value++
+      return
+    }
+
     changeStatus('Exeption!!')
   }
 }
