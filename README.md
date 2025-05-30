@@ -33,7 +33,7 @@ This is a VSCode extension for hackCraft2, a tool for learning programming throu
 
 ### 2. Connect to Server
 
-1. Click the hackCraft2 icon in the VSCode status bar
+1. Click "hackCraft2: Disconnected" in the VSCode status bar
 2. The extension will automatically connect using your configured settings
 3. Once connected, you can select a pet (the first pet is selected by default)
 
@@ -119,7 +119,7 @@ hackCraft2のVSCode拡張機能です。Minecraftを通じてプログラミン�
 
 ### 2. サーバーへの接続
 
-1. VSCodeのステータスバーにあるhackCraft2アイコンをクリック
+1. VSCodeのステータスバーにある「hackCraft2:未接続」をクリック
 2. 設定した情報で自動的に接続されます
 3. 接続後、ペットを選択できます（デフォルトで最初のペットが選択されます）
 
