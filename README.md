@@ -49,7 +49,7 @@ Example:
 // Draw a 4x4 square
 for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
-        entity.forward()
+        entity.forward(1)
     }
     entity.turnLeft()
 }
@@ -135,7 +135,7 @@ hackCraft2のVSCode拡張機能です。Minecraftを通じてプログラミン�
 // 4x4の正方形を描く
 for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
-        entity.forward()
+        entity.forward(1)
     }
     entity.turnLeft()
 }
