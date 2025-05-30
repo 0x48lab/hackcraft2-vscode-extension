@@ -27,7 +27,8 @@ This is a VSCode extension for hackCraft2, a tool for learning programming throu
 
 1. Open VSCode Settings (Ctrl/Cmd + ,)
 2. Search for "hackCraft2"
-3. Set your server address (e.g., "localhost:25570")
+3. Set your server host (e.g., "localhost")
+   - The default port (25570) is already configured
 4. Set your Minecraft player ID
 
 ### 2. Connect to Server
@@ -112,7 +113,8 @@ hackCraft2のVSCode拡張機能です。Minecraftを通じてプログラミン�
 
 1. VSCodeの設定を開く（Ctrl/Cmd + ,）
 2. "hackCraft2" で検索
-3. サーバーアドレスを設定（例: "localhost:25570"）
+3. サーバーのホスト名を設定（例: "localhost"）
+   - ポート番号（25570）はデフォルトで設定済みです
 4. MinecraftのプレイヤーIDを設定
 
 ### 2. サーバーへの接続
