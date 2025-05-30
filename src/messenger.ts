@@ -50,7 +50,7 @@ const sendMessages = (webview: vscode.Webview) => {
 // -----------------------------------
 const levelOrder = ['error', 'warn', 'info', 'debug'];
 const shouldLog = (targetLevel: string): boolean => {
-  const config = vscode.workspace.getConfiguration('8x9craft2')
+  const config = vscode.workspace.getConfiguration('hackCraft2')
   const settingsLogLevel = config.get('logLevel', 'info')
 
   return levelOrder.indexOf(targetLevel) <= levelOrder.indexOf(settingsLogLevel);
@@ -59,7 +59,7 @@ const shouldLog = (targetLevel: string): boolean => {
 const consoleLog = async (webview: vscode.Webview, message: any) => {
   console.log('consoleLog', message)
   //Create output channel
-  const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("8x9craft2", { log: true });
+  const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("hackCraft2", { log: true });
   log.show(true);
 
   if (!shouldLog(message.level)) return
@@ -85,7 +85,7 @@ const consoleLog = async (webview: vscode.Webview, message: any) => {
 const loadConfig = async (webview: vscode.Webview, message: any) => {
   console.log('loadConfig', message.command)
   // vscode.window.showInformationMessage('loadConfig');
-  const config = vscode.workspace.getConfiguration('8x9craft2')
+  const config = vscode.workspace.getConfiguration('hackCraft2')
 
   let serverAddressHistory = []
   const serverAddressHistoryData: any = config.get('serverAddressHistory')
@@ -118,7 +118,7 @@ const loadConfig = async (webview: vscode.Webview, message: any) => {
 const saveConfig = async (webview: vscode.Webview, message: any) => {
   console.log('saveConfig', message.command)
   // vscode.window.showInformationMessage('saveConfig');
-  const config = vscode.workspace.getConfiguration('8x9craft2')
+  const config = vscode.workspace.getConfiguration('hackCraft2')
   const settings = message.data
   console.log('saveConfig settings=', settings)
 

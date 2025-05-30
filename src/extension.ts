@@ -295,7 +295,7 @@ async function connect() {
 			selectedEntity = null;
 			updateStatusBarItems();
 			logMessage('info', 'Connected to server');
-			vscode.window.showInformationMessage('Connected to 8x9craft2 server');
+			vscode.window.showInformationMessage('Connected to hackCraft2 server');
 			
 			// Send login message
 			const message = {
@@ -318,7 +318,7 @@ async function connect() {
 			loggedData = null;  // loggedDataをクリア
 			updateStatusBarItems();
 			logMessage('info', 'Disconnected from server');
-			vscode.window.showInformationMessage('Disconnected from 8x9craft2 server');
+			vscode.window.showInformationMessage('Disconnected from hackCraft2 server');
 		});
 
 		ws.on('error', (error) => {
