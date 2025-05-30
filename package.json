@@ -32,10 +32,11 @@
     "onLanguage:python",
     "onLanguage:kotlin"
   ],
-  "main": "./dist/extension.js",
+  "main": "./dist/extension.bundle.js",
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && npm run bundle-deps",
     "compile": "tsc -p ./tsconfig.extension.json --skipLibCheck",
+    "bundle-deps": "webpack --mode production",
     "watch": "tsc -w -p ./tsconfig.extension.json --skipLibCheck",
     "lint": "eslint --fix \"src/**/*.{ts,vue}\"",
     "format": "prettier -w src/*.ts && prettier -w src/**/*.{ts,vue}",
@@ -168,7 +169,7 @@
       "properties": {
         "hackCraft2.logLevel": {
           "type": "string",
-          "default": "info",
+          "default": "debug",
           "enum": [
             "error",
             "warn",
@@ -204,7 +205,9 @@
         },
         "hackCraft2.projectType": {
           "type": "string",
-          "enum": ["hackCraft2"],
+          "enum": [
+            "hackCraft2"
+          ],
           "default": "hackCraft2",
           "description": "%configuration-project-type-description%"
         },
@@ -212,9 +215,17 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["python", "javascript", "java"]
+            "enum": [
+              "python",
+              "javascript",
+              "java"
+            ]
           },
-          "default": ["python", "javascript", "java"],
+          "default": [
+            "python",
+            "javascript",
+            "java"
+          ],
           "description": "%configuration-supported-languages-description%"
         }
       }
@@ -222,26 +233,47 @@
     "languages": [
       {
         "id": "python",
-        "extensions": [".py"],
-        "aliases": ["Python", "py"],
+        "extensions": [
+          ".py"
+        ],
+        "aliases": [
+          "Python",
+          "py"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "javascript",
-        "extensions": [".js"],
-        "aliases": ["JavaScript", "javascript", "js"],
+        "extensions": [
+          ".js"
+        ],
+        "aliases": [
+          "JavaScript",
+          "javascript",
+          "js"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "java",
-        "extensions": [".java"],
-        "aliases": ["Java", "java"],
+        "extensions": [
+          ".java"
+        ],
+        "aliases": [
+          "Java",
+          "java"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "kotlin",
-        "extensions": [".kt"],
-        "aliases": ["Kotlin", "kotlin"],
+        "extensions": [
+          ".kt"
+        ],
+        "aliases": [
+          "Kotlin",
+          "kotlin"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -260,8 +292,7 @@
     "@vitest/ui": "^0.26.2",
     "pinia": "^2.3.1",
     "vue": "^3.5.16",
-    "vue-i18n": "9",
-    "ws": "^8.13.0"
+    "vue-i18n": "9"
   },
   "devDependencies": {
     "@iconify-json/mdi": "^1.1.39",
@@ -290,6 +321,9 @@
     "vite": "^2.9.14",
     "vitest": "^0.26.2",
     "vue-demi": "^0.14.10",
-    "vue-tsc": "^0.40.6"
+    "vue-tsc": "^0.40.6",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1",
+    "ws": "^8.13.0"
   }
 }

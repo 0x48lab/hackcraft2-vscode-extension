@@ -167,7 +167,7 @@ async function showConnectionMenu() {
 			await connect();
 		} else if (selected.label.includes('設定を開く')) {
 			// hackCraft2の設定画面を開く
-			await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:yokmama.hackcraft2');
+			await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:masafumiterazono.hackcraft2');
 		}
 		return;
 	}
@@ -207,7 +207,7 @@ async function showConnectionMenu() {
 		await disconnect();
 	} else if (selected.label.includes('設定を開く')) {
 		// hackCraft2の設定画面を開く
-		await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:yokmama.hackcraft2');
+		await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:masafumiterazono.hackcraft2');
 	}
 }
 

@@ -4,7 +4,7 @@
   <img src="./Screenshot.png" width="350" alt="Screenshot of 8x9craft2">
 </p>
 
-8x9craft2のVSCode拡張機能です。Minecraftでプログラミングを楽しむためのツールです。
+hackCraft2のVSCode拡張機能です。Minecraftでプログラミングを楽しむためのツールです。
 
 ## 準備
 
@@ -12,12 +12,12 @@
 
 1. VSCodeを開く
 2. 拡張機能タブ（Ctrl/Cmd + Shift + X）を開く
-3. "8x9craft2" を検索
+3. "hackCraft2" を検索
 4. インストールボタンをクリック
 
 ### 2. 拡張機能ビューの表示
 
-- VSCodeの左サイドバーにある8x9craft2アイコンをクリック
+- VSCodeのステータスバーにあるhackCraftへ接続をクリック
 - または、コマンドパレット（`Ctrl/Cmd + Shift + P`）を開き、`8x9craft2: Focus 8x9craft2-view` を選択
 - 推奨: ビューパネルをVSCodeウィンドウの右側に移動すると使いやすいです
 
