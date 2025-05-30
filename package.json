@@ -41,7 +41,8 @@
     "fix": "yarn format && yarn lint",
     "typecheck": "vue-tsc --noEmit --skipLibCheck",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "package": "vsce package"
   },
   "contributes": {
     "viewsContainers": {
@@ -54,15 +55,7 @@
       ]
     },
     "views": {
-      "hackcraft2-view": [
-        {
-          "type": "webview",
-          "id": "hackcraft2-view-sidebar",
-          "name": "%view-logs-title%",
-          "icon": "resources/icon/hackcraft2.png",
-          "contextualTitle": "%view-logs-contextual-title%"
-        }
-      ]
+      "hackcraft2-view": []
     },
     "menus": {
       "explorer/context": [

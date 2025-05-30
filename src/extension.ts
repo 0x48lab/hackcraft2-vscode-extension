@@ -1,5 +1,4 @@
 import * as vscode from 'vscode'
-import { BaseViewProvider } from './BaseViewProvider'
 import WebSocket from 'ws'
 
 interface Location {
@@ -563,18 +562,13 @@ export function activate(context: vscode.ExtensionContext) {
 		},
 		'.' // triggered whenever a '.' is being typed
 	);
-	const provider = new BaseViewProvider(context.extensionUri)
 
 	context.subscriptions.push(
 		provider1,
 		provider2,
 		showConnectionMenuCommand,
 		getSelectedEntityUuidCommand,
-		statusBarItem,
-		vscode.window.registerWebviewViewProvider(
-			BaseViewProvider.viewType,
-			provider
-		)
+		statusBarItem
 	);
 
 	// Register run commands
