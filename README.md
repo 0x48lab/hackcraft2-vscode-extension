@@ -23,14 +23,20 @@ This is a VSCode extension for hackCraft2, a tool for learning programming throu
 
 ## Usage
 
-### 1. Connect to Server
+### 1. Configure Server Connection
+
+1. Open VSCode Settings (Ctrl/Cmd + ,)
+2. Search for "hackCraft2"
+3. Set your server address (e.g., "localhost:25570")
+4. Set your Minecraft player ID
+
+### 2. Connect to Server
 
 1. Click the hackCraft2 icon in the VSCode status bar
-2. Enter the server address (e.g., "localhost:25570")
-3. Enter your Minecraft player ID
-4. Click "Connect"
+2. The extension will automatically connect using your configured settings
+3. Once connected, you can select a pet (the first pet is selected by default)
 
-### 2. Programming
+### 3. Programming
 
 You can program using the following languages:
 - TypeScript (.ts)
@@ -48,11 +54,12 @@ for (let i = 0; i < 4; i++) {
 }
 ```
 
-### 3. Run Script
+### 4. Run Script
 
-1. Select an entity in the hackCraft2 view
-2. Click "Run Script" to execute your code
-3. Watch the entity move in Minecraft!
+1. Create a new JavaScript file in VSCode
+2. Write your program
+3. Click the "Run" button in the top-right corner of the editor
+4. Watch your pet move in Minecraft!
 
 ## Features
 
@@ -61,17 +68,19 @@ for (let i = 0; i < 4; i++) {
 - 3D view display
 - Server connection management
 - Script execution/stop
+- Automatic pet selection
+- Easy-to-use run button in the editor
 
 ## Troubleshooting
 
 - If you can't connect:
-  - Verify the server address and port number
+  - Verify your server settings in VSCode Settings
   - Check if the Minecraft server is running
   - Check firewall settings
 
 - If the script doesn't run:
-  - Make sure an entity is selected
-  - Verify server connection
+  - Make sure you're connected to the server
+  - Verify that a pet is selected
   - Check for syntax errors in your code
 
 ## Links
@@ -99,14 +108,20 @@ hackCraft2のVSCode拡張機能です。Minecraftを通じてプログラミン�
 
 ## 使い方
 
-### 1. サーバーへの接続
+### 1. サーバー接続の設定
+
+1. VSCodeの設定を開く（Ctrl/Cmd + ,）
+2. "hackCraft2" で検索
+3. サーバーアドレスを設定（例: "localhost:25570"）
+4. MinecraftのプレイヤーIDを設定
+
+### 2. サーバーへの接続
 
 1. VSCodeのステータスバーにあるhackCraft2アイコンをクリック
-2. サーバーアドレスを入力（例: "localhost:25570"）
-3. MinecraftのプレイヤーIDを入力
-4. "Connect"ボタンをクリック
+2. 設定した情報で自動的に接続されます
+3. 接続後、ペットを選択できます（デフォルトで最初のペットが選択されます）
 
-### 2. プログラミング
+### 3. プログラミング
 
 以下の言語でプログラミングができます：
 - TypeScript (.ts)
@@ -124,11 +139,12 @@ for (let i = 0; i < 4; i++) {
 }
 ```
 
-### 3. スクリプトの実行
+### 4. スクリプトの実行
 
-1. hackCraft2ビューでエンティティを選択
-2. "Run Script"ボタンをクリックして実行
-3. Minecraftでエンティティの動きを確認！
+1. VSCodeで新しいJavaScriptファイルを作成
+2. プログラムを書く
+3. エディタ右上の実行ボタンをクリック
+4. Minecraftでペットの動きを確認！
 
 ## 機能
 
@@ -137,17 +153,19 @@ for (let i = 0; i < 4; i++) {
 - 3Dビューの表示
 - サーバー接続状態の管理
 - スクリプトの実行/停止
+- ペットの自動選択
+- エディタ内の使いやすい実行ボタン
 
 ## トラブルシューティング
 
 - 接続できない場合：
-  - サーバーアドレスとポート番号が正しいか確認
+  - VSCodeの設定でサーバー設定を確認
   - Minecraftサーバーが起動しているか確認
   - ファイアウォールの設定を確認
 
 - スクリプトが実行できない場合：
-  - エンティティが選択されているか確認
   - サーバーに接続されているか確認
+  - ペットが選択されているか確認
   - コードに構文エラーがないか確認
 
 ## リンク
