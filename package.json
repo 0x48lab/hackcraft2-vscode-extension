@@ -6,7 +6,7 @@
   "publisher": "masafumiterazono",
   "repository": {
     "type": "git",
-    "url": "git@github.com:0x48lab/hackcraft2-vscode-extension.git"
+    "url": "https://github.com/0x48lab/hackcraft2-vscode-extension.git"
   },
   "icon": "resources/icon/hackcraft2.png",
   "engines": {
