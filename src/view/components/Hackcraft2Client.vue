@@ -63,10 +63,10 @@
         <div v-else class="sm:w-2/3">
           <select
             id="entity"
-            v-model="entityUuid"
+            :value="entityUuid"
+            @input="(e: Event) => { entityUuid = (e.target as HTMLSelectElement).value; entityChanged(e); }"
             :disabled="entities.length == 0"
             class="block appearance-none w-full text-black bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-            @change="entityChanged"
           >
             <option
               v-for="entity in entities"
@@ -209,7 +209,8 @@ const connect = (isUseSSL: boolean) => {
     const message = {
       type: 'login',
       data: {
-        loginId: settingStore.setting.playerId,
+        player: settingStore.setting.playerId,
+        clientType: 'main',
       },
     }
     ws?.send(JSON.stringify(message))
@@ -235,12 +236,37 @@ const connect = (isUseSSL: boolean) => {
     useLog().debug('#onmessage :' + event.data.toString())
 
     const json = JSON.parse(event.data.toString())
+    useLog().info("受信："+event.data.toString())
 
     if (json.type === 'entities') {
-      useLog().info(event.data.toString())
 
       entities.value.splice(0, entities.value.length)
       const newEntities: [] = json.data
+      if (newEntities.length > 0) {
+        entities.value.push(...newEntities)
+        const first: any = entities.value[0]
+        entityUuid.value = first.entityUuid
+      }
+    } else if (json.type === 'logged') {
+      useLog().info("logged")
+      /*
+      "logged", mapOf(
+                                        "playerUUID" to owner.uuid,
+                                        "world" to world,
+                                        "player_name" to owner.name,
+                                        "isOp" to isOp,
+                                        "host" to hackCraftConfig.wsHost,
+                                        "port" to hackCraftConfig.httpPort,
+                                        "ssl" to hackCraftConfig.ssl,
+                                        "monacoPort" to hackCraftConfig.monacoPort,
+                                        "scratchPort" to hackCraftConfig.scratchPort,
+                                        "entities" to list,
+                                        "level" to level,
+                                    )*/
+
+      entities.value.splice(0, entities.value.length)
+      
+      const newEntities: [] = json.data.entities
       if (newEntities.length > 0) {
         entities.value.push(...newEntities)
         const first: any = entities.value[0]
@@ -372,7 +398,7 @@ const entityChanged = (event: any) => {
   const message = {
     type: 'attach',
     data: {
-      entity: entityUuid.value,
+      entityUuid: entityUuid.value,
     },
   }
   ws?.send(JSON.stringify(message))
