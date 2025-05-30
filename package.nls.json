@@ -13,6 +13,7 @@
   "command-run-javascript": "Run JavaScript",
   "command-run-java": "Run Java",
   "command-stop-script": "Stop",
+  "command-open-3d-view": "3Dビューを開く",
   "view-title": "hackCraft2",
   "view-logs-title": "hackCraft2 Logs",
   "view-logs-contextual-title": "hackCraft2 Logs",

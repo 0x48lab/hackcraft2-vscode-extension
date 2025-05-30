@@ -157,7 +157,7 @@
       },
       {
         "command": "hackcraft2.open3DView",
-        "title": "Open 3D View",
+        "title": "%command-open-3d-view%",
         "icon": "$(eye)"
       }
     ],

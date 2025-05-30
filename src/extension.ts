@@ -95,7 +95,7 @@ function initializeLogChannel() {
 	}
 }
 
-function logMessage(level: 'info' | 'warn' | 'error', message: string) {
+function logMessage(level: 'info' | 'warn' | 'error' | 'debug', message: string) {
 	if (!logChannel) {
 		initializeLogChannel();
 	}
@@ -126,8 +126,8 @@ function updateStatusBarItems() {
 	// 3Dビューボタンの更新
 	if (open3DViewButton) {
 		if (isConnected && selectedEntity) {
-			open3DViewButton.text = `$(eye) Open 3D View`;
-			open3DViewButton.tooltip = `Open 3D View for ${selectedEntity.name}`;
+			open3DViewButton.text = `$(eye) 3Dビューを開く`;
+			open3DViewButton.tooltip = `${selectedEntity.name}の3Dビューを開く`;
 			open3DViewButton.show();
 		} else {
 			open3DViewButton.hide();
@@ -305,7 +305,6 @@ async function connect() {
 		ws.on('close', () => {
 			isConnected = false;
 			updateConnectionState(false);
-			isRunning = false;
 			updateRunningState(false);
 			entities = [];
 			selectedEntity = null;
@@ -318,7 +317,6 @@ async function connect() {
 		ws.on('error', (error) => {
 			isConnected = false;
 			updateConnectionState(false);
-			isRunning = false;
 			updateRunningState(false);
 			entities = [];
 			selectedEntity = null;
@@ -330,7 +328,7 @@ async function connect() {
 
 		ws.on('message', (data) => {
 			const json = JSON.parse(data.toString());
-			logMessage('info', `Received message: ${data.toString()}`);
+			logMessage('debug', data.toString());
 			
 			if (json.type === 'logged') {
 				const data = json.data as LoggedData;
@@ -355,7 +353,7 @@ async function connect() {
 				
 				// Update entities from logged data
 				entities = data.entities;
-				logMessage('info', `Received ${entities.length} entities`);
+				logMessage('debug', `Received ${entities.length} entities`);
 				
 				if (entities.length > 0 && !selectedEntity) {
 					// Auto-select first entity if none selected
@@ -371,17 +369,11 @@ async function connect() {
 					ws?.send(JSON.stringify(message));
 				}
 				updateStatusBarItems();
-			} else if (json.type === 'error') {
-				logMessage('error', `Server error: ${json.data}`);
-			}
-
-			// 実行状態の更新を処理
-			if (json.type === 'execute_start') {
-				isRunning = true;
-				updateRunningState(true);
-			} else if (json.type === 'execute_end' || json.type === 'execute_error') {
-				isRunning = false;
+			} else if (json.type === 'error' || json.type === 'result') {
+				logMessage('info', json.data);
 				updateRunningState(false);
+			} else if (json.type === 'message') {
+				logMessage('info', json.data);
 			}
 		});
 
@@ -390,7 +382,6 @@ async function connect() {
 		vscode.window.showErrorMessage(`Failed to connect: ${error}`);
 		isConnected = false;
 		updateConnectionState(false);
-		isRunning = false;
 		updateRunningState(false);
 		entities = [];
 		selectedEntity = null;
@@ -455,6 +446,7 @@ async function runFile(language: 'python' | 'javascript' | 'java') {
 		};
 		logMessage('info', `Sending execute message for ${language}`);
 		ws.send(JSON.stringify(message));
+		updateRunningState(true);
 	}
 }
 
@@ -463,6 +455,17 @@ function updateRunningState(running: boolean) {
 	isRunning = running;
 	// コマンドの有効/無効状態を更新
 	vscode.commands.executeCommand('setContext', 'hackcraft2.isRunning', running);
+	
+	// ボタンの表示を更新
+	const editor = vscode.window.activeTextEditor;
+	if (editor) {
+		const language = getLanguageFromFile(editor.document.fileName);
+		if (language) {
+			// 実行中は停止ボタンを表示し、実行ボタンを非表示に
+			vscode.commands.executeCommand('setContext', `hackcraft2.canRun${language.charAt(0).toUpperCase() + language.slice(1)}`, !running);
+			vscode.commands.executeCommand('setContext', 'hackcraft2.canStop', running);
+		}
+	}
 }
 
 // 接続状態を更新する関数を修正
@@ -490,11 +493,27 @@ async function stopScript() {
 		const message = {
 			type: 'stop',
 			data: {
-				entityUuid: selectedEntity.entityUuid,
+				entity: selectedEntity.name,
 			},
 		};
 		logMessage('info', 'Sending stop message');
 		ws.send(JSON.stringify(message));
+		updateRunningState(false);
+	}
+}
+
+// トグルコマンドの実装
+async function toggleScript() {
+	if (isRunning) {
+		await stopScript();
+	} else {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const language = getLanguageFromFile(editor.document.fileName);
+			if (language) {
+				await runFile(language);
+			}
+		}
 	}
 }
 
@@ -506,8 +525,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// 3Dビューを開くボタンを追加
 	open3DViewButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101);
 	open3DViewButton.command = "hackcraft2.open3DView";
-	open3DViewButton.text = "$(eye) Open 3D View";
-	open3DViewButton.tooltip = "Open 3D View of selected entity";
+	open3DViewButton.text = "$(eye) 3Dビューを開く";
+	open3DViewButton.tooltip = "選択したエンティティの3Dビューを開く";
 
 	// イベントリスナーを登録
 	context.subscriptions.push(
@@ -660,6 +679,25 @@ export function activate(context: vscode.ExtensionContext) {
 		runPythonCommand,
 		runJavaScriptCommand,
 		runJavaCommand
+	);
+
+	// トグルコマンドの登録
+	let toggleScriptCommand = vscode.commands.registerCommand('hackcraft2.toggleScript', toggleScript);
+
+	context.subscriptions.push(
+		toggleScriptCommand
+	);
+
+	// エディタが変更されたときに実行状態を更新
+	context.subscriptions.push(
+		vscode.window.onDidChangeActiveTextEditor((editor) => {
+			if (editor) {
+				const language = getLanguageFromFile(editor.document.fileName);
+				if (language) {
+					vscode.commands.executeCommand('setContext', `hackcraft2.canRun${language.charAt(0).toUpperCase() + language.slice(1)}`, !isRunning);
+				}
+			}
+		})
 	);
 
 	// 初期状態の設定
