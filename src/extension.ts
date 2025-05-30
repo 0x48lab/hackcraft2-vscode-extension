@@ -31,6 +31,7 @@ interface Entity {
 	y: number;
 	z: number;
 	world: string;
+	isRunning: boolean;
 }
 
 interface ItemStack {
@@ -253,6 +254,9 @@ async function selectEntity() {
 			ws.send(JSON.stringify(message));
 		}
 
+		// 選択したエンティティの実行状態を反映
+		updateRunningState(selectedEntity.isRunning);
+
 		updateStatusBarItems();
 		onEntitySelected.fire();
 	}
@@ -353,6 +357,10 @@ async function connect() {
 				
 				// Update entities from logged data
 				entities = data.entities;
+				// 各エンティティの実行状態を初期化
+				entities.forEach(entity => {
+					entity.isRunning = false;
+				});
 				logMessage('debug', `Received ${entities.length} entities`);
 				
 				if (entities.length > 0 && !selectedEntity) {
@@ -367,13 +375,25 @@ async function connect() {
 					};
 					logMessage('info', `Sending attach message for auto-selected entity: ${selectedEntity.name}`);
 					ws?.send(JSON.stringify(message));
+					// 選択したエンティティの実行状態を反映
+					updateRunningState(selectedEntity.isRunning);
 				}
 				updateStatusBarItems();
 			} else if (json.type === 'error' || json.type === 'result') {
 				logMessage('info', json.data);
-				updateRunningState(false);
+				// エンティティの実行状態を更新
+				if (selectedEntity && json.data.entityUuid === selectedEntity.entityUuid) {
+					updateRunningState(false);
+				}
+				// 該当するエンティティの実行状態を更新
+				const entity = entities.find(e => e.entityUuid === json.data.entityUuid);
+				if (entity) {
+					entity.isRunning = false;
+				}
 			} else if (json.type === 'message') {
 				logMessage('info', json.data);
+			} else if (json.type === 'attach') {
+				//logMessage('debug', json.data);
 			}
 		});
 
@@ -453,6 +473,10 @@ async function runFile(language: 'python' | 'javascript' | 'java') {
 // 実行状態を更新する関数
 function updateRunningState(running: boolean) {
 	isRunning = running;
+	// 選択中のエンティティの実行状態も更新
+	if (selectedEntity) {
+		selectedEntity.isRunning = running;
+	}
 	// コマンドの有効/無効状態を更新
 	vscode.commands.executeCommand('setContext', 'hackcraft2.isRunning', running);
 	
