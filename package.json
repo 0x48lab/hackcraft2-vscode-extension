@@ -34,8 +34,8 @@
   "main": "./dist/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "concurrently \"tsc -p ./tsconfig.extension.json --skipLibCheck\" \"vite build\" \"tailwindcss -i ./src/assets/css/main.css -o ./dist/output.css\"",
-    "watch": "concurrently \"tsc -w -p ./tsconfig.extension.json --skipLibCheck\" \"vite build --watch\" \"tailwindcss -i ./src/assets/css/main.css -o ./dist/output.css --watch\"",
+    "compile": "tsc -p ./tsconfig.extension.json --skipLibCheck",
+    "watch": "tsc -w -p ./tsconfig.extension.json --skipLibCheck",
     "lint": "eslint --fix \"src/**/*.{ts,vue}\"",
     "format": "prettier -w src/*.ts && prettier -w src/**/*.{ts,vue}",
     "fix": "yarn format && yarn lint",
@@ -112,6 +112,11 @@
           "command": "hackcraft2.stopScript",
           "when": "hackcraft2.isConnected && hackcraft2.isRunning",
           "group": "navigation@1"
+        },
+        {
+          "command": "hackcraft2.open3DView",
+          "when": "hackcraft2.isConnected && hackcraft2.selectedEntity != null",
+          "group": "navigation@2"
         }
       ]
     },
@@ -149,6 +154,11 @@
         "title": "%command-stop-script%",
         "category": "hackCraft2",
         "icon": "$(stop)"
+      },
+      {
+        "command": "hackcraft2.open3DView",
+        "title": "Open 3D View",
+        "icon": "$(eye)"
       }
     ],
     "configuration": {

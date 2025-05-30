@@ -61,6 +61,31 @@ let selectedEntity: Entity | null = null;
 let logChannel: vscode.LogOutputChannel;
 let isRunning = false;
 
+// グローバル変数として関数を保持
+let updateConnectionStateOriginal: (connected: boolean) => void;
+let selectEntityOriginal: () => Promise<void>;
+
+// イベントエミッターを追加
+const onConnectionStateChanged = new vscode.EventEmitter<boolean>();
+const onEntitySelected = new vscode.EventEmitter<void>();
+
+// グローバル変数としてステータスバーアイテムを保持
+let open3DViewButton: vscode.StatusBarItem;
+
+// loggedイベントで受け取ったデータを保持する変数を追加
+let loggedData: {
+	playerUUID: string;
+	world: string;
+	player_name: string;
+	isOp: boolean;
+	host: string;
+	port: number;
+	ssl: boolean;
+	monacoPort: number;
+	scratchPort: number;
+	level: number;
+} | null = null;
+
 function initializeLogChannel() {
 	if (!logChannel) {
 		logChannel = vscode.window.createOutputChannel("hackCraft2", { log: true });
@@ -78,6 +103,7 @@ function logMessage(level: 'info' | 'warn' | 'error', message: string) {
 }
 
 function updateStatusBarItems() {
+	// メインのステータスバーアイテムの更新
 	if (!statusBarItem) {
 		statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 		statusBarItem.command = 'hackcraft2.showConnectionMenu';
@@ -85,7 +111,6 @@ function updateStatusBarItems() {
 
 	if (isConnected) {
 		if (selectedEntity) {
-			// 一時的に直接日本語を使用
 			statusBarItem.text = `$(hackcraft2-icon) hackCraft2: ${selectedEntity.name} (${selectedEntity.type})`;
 			statusBarItem.tooltip = 'クリックして接続メニューを表示';
 		} else {
@@ -97,6 +122,17 @@ function updateStatusBarItems() {
 		statusBarItem.tooltip = 'クリックしてhackCraft2サーバーに接続';
 	}
 	statusBarItem.show();
+
+	// 3Dビューボタンの更新
+	if (open3DViewButton) {
+		if (isConnected && selectedEntity) {
+			open3DViewButton.text = `$(eye) Open 3D View`;
+			open3DViewButton.tooltip = `Open 3D View for ${selectedEntity.name}`;
+			open3DViewButton.show();
+		} else {
+			open3DViewButton.hide();
+		}
+	}
 }
 
 async function showConnectionMenu() {
@@ -184,7 +220,6 @@ async function selectEntity() {
 		return;
 	}
 
-	logMessage('info', `利用可能なエンティティ: ${entities.length}`);
 	const items = entities.map(entity => ({
 		label: entity.name,
 		description: `タイプ: ${entity.type}`,
@@ -204,8 +239,8 @@ async function selectEntity() {
 
 	if (selected) {
 		selectedEntity = selected.entity;
-		logMessage('info', `選択されたエンティティ: ${selectedEntity.name} (${selectedEntity.type})`);
-		updateStatusBarItems();
+		// エンティティ選択状態をVSCodeに通知
+		vscode.commands.executeCommand('setContext', 'hackcraft2.selectedEntity', true);
 		
 		// Send attach message to server
 		if (ws) {
@@ -215,9 +250,11 @@ async function selectEntity() {
 					entityUuid: selectedEntity.entityUuid,
 				},
 			};
-			logMessage('info', `エンティティ ${selectedEntity.name} にアタッチメッセージを送信`);
 			ws.send(JSON.stringify(message));
 		}
+
+		updateStatusBarItems();
+		onEntitySelected.fire();
 	}
 }
 
@@ -272,6 +309,7 @@ async function connect() {
 			updateRunningState(false);
 			entities = [];
 			selectedEntity = null;
+			loggedData = null;  // loggedDataをクリア
 			updateStatusBarItems();
 			logMessage('info', 'Disconnected from server');
 			vscode.window.showInformationMessage('Disconnected from 8x9craft2 server');
@@ -284,6 +322,7 @@ async function connect() {
 			updateRunningState(false);
 			entities = [];
 			selectedEntity = null;
+			loggedData = null;  // loggedDataをクリア
 			updateStatusBarItems();
 			logMessage('error', `Connection error: ${error.message}`);
 			vscode.window.showErrorMessage(`Connection error: ${error.message}`);
@@ -294,14 +333,28 @@ async function connect() {
 			logMessage('info', `Received message: ${data.toString()}`);
 			
 			if (json.type === 'logged') {
-				const loggedData = json.data as LoggedData;
+				const data = json.data as LoggedData;
 				logMessage('info', 'Login successful');
-				logMessage('info', `Player: ${loggedData.player_name}`);
-				logMessage('info', `World: ${loggedData.world}`);
-				logMessage('info', `Is OP: ${loggedData.isOp}`);
+				logMessage('info', `Player: ${data.player_name}`);
+				logMessage('info', `World: ${data.world}`);
+				logMessage('info', `Is OP: ${data.isOp}`);
+				
+				// loggedデータを保持
+				loggedData = {
+					playerUUID: data.playerUUID,
+					world: data.world,
+					player_name: data.player_name,
+					isOp: data.isOp,
+					host: data.host,
+					port: data.port,
+					ssl: data.ssl,
+					monacoPort: data.monacoPort,
+					scratchPort: data.scratchPort,
+					level: data.level
+				};
 				
 				// Update entities from logged data
-				entities = loggedData.entities;
+				entities = data.entities;
 				logMessage('info', `Received ${entities.length} entities`);
 				
 				if (entities.length > 0 && !selectedEntity) {
@@ -341,6 +394,7 @@ async function connect() {
 		updateRunningState(false);
 		entities = [];
 		selectedEntity = null;
+		loggedData = null;  // loggedDataをクリア
 		updateStatusBarItems();
 	}
 }
@@ -354,6 +408,7 @@ async function disconnect() {
 	updateConnectionState(false);
 	entities = [];
 	selectedEntity = null;
+	loggedData = null;  // loggedDataをクリア
 	updateStatusBarItems();
 }
 
@@ -410,11 +465,17 @@ function updateRunningState(running: boolean) {
 	vscode.commands.executeCommand('setContext', 'hackcraft2.isRunning', running);
 }
 
-// 接続状態を更新する関数
+// 接続状態を更新する関数を修正
 function updateConnectionState(connected: boolean) {
 	isConnected = connected;
 	// コマンドの有効/無効状態を更新
 	vscode.commands.executeCommand('setContext', 'hackcraft2.isConnected', connected);
+	// 接続が切れた場合は選択されたエンティティもクリア
+	if (!connected) {
+		selectedEntity = null;
+		vscode.commands.executeCommand('setContext', 'hackcraft2.selectedEntity', false);
+	}
+	onConnectionStateChanged.fire(connected);
 }
 
 // スクリプト停止コマンドの実装
@@ -440,6 +501,25 @@ async function stopScript() {
 export function activate(context: vscode.ExtensionContext) {
 	// Initialize log channel first
 	initializeLogChannel();
+	logMessage('info', 'Extension activated');
+
+	// 3Dビューを開くボタンを追加
+	open3DViewButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101);
+	open3DViewButton.command = "hackcraft2.open3DView";
+	open3DViewButton.text = "$(eye) Open 3D View";
+	open3DViewButton.tooltip = "Open 3D View of selected entity";
+
+	// イベントリスナーを登録
+	context.subscriptions.push(
+		onConnectionStateChanged.event(() => {
+			updateStatusBarItems();
+		}),
+		onEntitySelected.event(() => {
+			updateStatusBarItems();
+		})
+	);
+	
+	context.subscriptions.push(open3DViewButton);
 
 	// Create status bar items
 	updateStatusBarItems();
@@ -592,6 +672,35 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		stopScriptCommand
 	);
+
+	// 3Dビューを開くコマンドのハンドラを修正
+	const open3DViewDisposable = vscode.commands.registerCommand("hackcraft2.open3DView", async () => {
+		if (!isConnected || !selectedEntity || !loggedData) {
+			vscode.window.showErrorMessage("Please connect and select an entity first");
+			return;
+		}
+
+		// URLを構築
+		const baseUrl = "http://hackcraft.jp/3dview/index.html";
+		const params = new URLSearchParams({
+			player_name: loggedData.player_name,
+			player_id: loggedData.playerUUID,
+			entity_name: selectedEntity.name,
+			entity_id: selectedEntity.entityUuid,
+			entity_type: selectedEntity.type,
+			scratchPort: loggedData.scratchPort.toString(),
+			monacoPort: loggedData.monacoPort.toString(),
+			host: loggedData.host,
+			port: loggedData.port.toString(),
+			ssl: loggedData.ssl.toString(),
+			level: loggedData.level.toString()
+		});
+
+		const url = `${baseUrl}?${params.toString()}`;
+		vscode.env.openExternal(vscode.Uri.parse(url));
+	});
+
+	context.subscriptions.push(open3DViewDisposable);
 }
 
 export function deactivate() {
