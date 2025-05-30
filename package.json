@@ -6,7 +6,7 @@
   "publisher": "yokmama",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yokmama/hackcraft2-vscode-extension"
+    "url": "git@github.com:0x48lab/hackcraft2-vscode-extension.git"
   },
   "icon": "resources/icon/hackcraft2.png",
   "engines": {
