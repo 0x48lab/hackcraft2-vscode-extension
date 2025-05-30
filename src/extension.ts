@@ -87,14 +87,14 @@ function updateStatusBarItems() {
 	if (isConnected) {
 		if (selectedEntity) {
 			// 一時的に直接日本語を使用
-			statusBarItem.text = `$(plug) hackCraft2: ${selectedEntity.name} (${selectedEntity.type})`;
+			statusBarItem.text = `$(hackcraft2-icon) hackCraft2: ${selectedEntity.name} (${selectedEntity.type})`;
 			statusBarItem.tooltip = 'クリックして接続メニューを表示';
 		} else {
-			statusBarItem.text = `$(plug) hackCraft2: 接続中`;
+			statusBarItem.text = `$(hackcraft2-icon) hackCraft2: 接続中`;
 			statusBarItem.tooltip = 'クリックして接続メニューを表示';
 		}
 	} else {
-		statusBarItem.text = `$(plug) hackCraft2: 未接続`;
+		statusBarItem.text = `$(hackcraft2-icon) hackCraft2: 未接続`;
 		statusBarItem.tooltip = 'クリックしてhackCraft2サーバーに接続';
 	}
 	statusBarItem.show();
@@ -102,11 +102,38 @@ function updateStatusBarItems() {
 
 async function showConnectionMenu() {
 	if (!isConnected) {
-		logMessage('info', 'サーバーに接続中...');
-		await connect();
+		const items: vscode.QuickPickItem[] = [
+			{
+				label: `$(plug) 接続`,
+				description: 'hackCraft2サーバーに接続',
+				detail: 'サーバーアドレスとプレイヤーIDを使用して接続'
+			},
+			{
+				label: `$(settings) 設定を開く`,
+				description: 'hackCraft2の設定を開く',
+				detail: 'サーバーアドレスやプレイヤーIDなどの設定を変更'
+			}
+		];
+
+		const selected = await vscode.window.showQuickPick(items, {
+			placeHolder: '接続メニュー',
+		});
+
+		if (!selected) {
+			return;
+		}
+
+		if (selected.label.includes('接続')) {
+			logMessage('info', 'サーバーに接続中...');
+			await connect();
+		} else if (selected.label.includes('設定を開く')) {
+			// hackCraft2の設定画面を開く
+			await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:shibomb.hackcraft2');
+		}
 		return;
 	}
 
+	// 接続済みの場合のメニュー
 	const items: vscode.QuickPickItem[] = [
 		{
 			label: `$(person) エンティティを選択`,
@@ -114,6 +141,11 @@ async function showConnectionMenu() {
 			detail: selectedEntity 
 				? `現在: ${selectedEntity.name} (${selectedEntity.type})`
 				: 'エンティティが選択されていません'
+		},
+		{
+			label: `$(settings) 設定を開く`,
+			description: 'hackCraft2の設定を開く',
+			detail: 'サーバーアドレスやプレイヤーIDなどの設定を変更'
 		},
 		{
 			label: `$(plug) 切断`,
@@ -134,6 +166,9 @@ async function showConnectionMenu() {
 		await selectEntity();
 	} else if (selected.label.includes('切断')) {
 		await disconnect();
+	} else if (selected.label.includes('設定を開く')) {
+		// hackCraft2の設定画面を開く
+		await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:shibomb.hackcraft2');
 	}
 }
 
@@ -193,10 +228,12 @@ async function connect() {
 		ws = null;
 	}
 
-	const config = vscode.workspace.getConfiguration('8x9craft2');
-	const serverAddress = config.get('serverAddress', 'localhost:25570');
+	const config = vscode.workspace.getConfiguration('hackCraft2');
+	const serverHost = config.get('serverHost', 'localhost');
+	const serverPort = config.get('serverPort', 25570);
 	const playerId = config.get('playerId', '');
 
+	const serverAddress = `${serverHost}:${serverPort}`;
 	logMessage('info', `Connecting to server: ${serverAddress}`);
 
 	if (!playerId) {

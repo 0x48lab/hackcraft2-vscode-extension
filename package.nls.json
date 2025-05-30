@@ -1,10 +1,10 @@
 {
-  "configuration-title": "hackCraft2 configurations",
+  "configuration-title": "hackCraft2",
   "configuration-server-addresss-description": "hackCraft2 Server Address. e.g. localhost:25569",
-  "configuration-player-id-description": "Your Minecraft Player Id. e.g. steve",
-  "configuration-server-addresss-history-description": "hackCraft2 Server Address History (Auto update, but you can delete it).",
-  "configuration-player-id-history-description": "Your Minecraft Player Id History (Auto update, but you can delete it).",
-  "configuration-log-level-description": "Log level for hackCraft2 extension",
+  "configuration-player-id-description": "hackCraft2サーバーで使用するプレイヤーIDを設定します",
+  "configuration-server-addresss-history-description": "過去に使用したサーバーアドレスの履歴",
+  "configuration-player-id-history-description": "過去に使用したプレイヤーIDの履歴",
+  "configuration-log-level-description": "ログの出力レベルを設定します",
   "configuration-project-type-description": "Project type for hackCraft2",
   "configuration-supported-languages-description": "Supported programming languages for hackCraft2",
   "command-show-connection-menu": "hackCraft2: Show Connection Menu",
@@ -34,5 +34,7 @@
   "entity-selection-not-connected": "Not connected to server",
   "entity-selection-position": "Position: ({0}, {1}, {2})",
   "entity-selection-health": "Health: {0}",
-  "entity-selection-creative": "Creative: {0}"
+  "entity-selection-creative": "Creative: {0}",
+  "configuration-server-host-description": "hackCraft2サーバーのホスト名を設定します",
+  "configuration-server-port-description": "hackCraft2サーバーのポート番号を設定します"
 }

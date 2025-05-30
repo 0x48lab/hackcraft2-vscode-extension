@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/shibomb/hackcraft2-vscode-extension"
   },
-  "icon": "resources/logo.png",
+  "icon": "resources/icon/hackcraft2.png",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -49,7 +49,7 @@
         {
           "id": "hackcraft2-view",
           "title": "%view-title%",
-          "icon": "resources/icon/default.png"
+          "icon": "resources/icon/hackcraft2.png"
         }
       ]
     },
@@ -59,7 +59,7 @@
           "type": "webview",
           "id": "hackcraft2-view-sidebar",
           "name": "%view-logs-title%",
-          "icon": "resources/icon/default.png",
+          "icon": "resources/icon/hackcraft2.png",
           "contextualTitle": "%view-logs-contextual-title%"
         }
       ]
@@ -162,7 +162,7 @@
       "type": "object",
       "title": "%configuration-title%",
       "properties": {
-        "8x9craft2.logLevel": {
+        "hackCraft2.logLevel": {
           "type": "string",
           "default": "info",
           "enum": [
@@ -173,33 +173,38 @@
           ],
           "description": "%configuration-log-level-description%"
         },
-        "8x9craft2.serverAddress": {
+        "hackCraft2.serverHost": {
           "type": "string",
-          "default": "localhost:25569",
-          "description": "%configuration-server-addresss-description%"
+          "default": "localhost",
+          "description": "%configuration-server-host-description%"
         },
-        "8x9craft2.playerId": {
-          "type": "string",
-          "default": "",
-          "description": "%configuration-player-id-description%"
+        "hackCraft2.serverPort": {
+          "type": "number",
+          "default": 25570,
+          "description": "%configuration-server-port-description%"
         },
-        "8x9craft2.serverAddressHistory": {
+        "hackCraft2.serverAddressHistory": {
           "type": "string",
           "default": "",
           "description": "%configuration-server-addresss-history-description%"
         },
-        "8x9craft2.playerIdHistory": {
+        "hackCraft2.playerId": {
+          "type": "string",
+          "default": "",
+          "description": "%configuration-player-id-description%"
+        },
+        "hackCraft2.playerIdHistory": {
           "type": "string",
           "default": "",
           "description": "%configuration-player-id-history-description%"
         },
-        "8x9craft2.projectType": {
+        "hackCraft2.projectType": {
           "type": "string",
           "enum": ["hackCraft2"],
           "default": "hackCraft2",
           "description": "%configuration-project-type-description%"
         },
-        "8x9craft2.supportedLanguages": {
+        "hackCraft2.supportedLanguages": {
           "type": "array",
           "items": {
             "type": "string",
@@ -229,7 +234,16 @@
         "aliases": ["Java", "java"],
         "configuration": "./language-configuration.json"
       }
-    ]
+    ],
+    "icons": {
+      "hackcraft2-icon": {
+        "description": "hackCraft2 icon",
+        "default": {
+          "fontPath": "resources/icon/hackcraft2.png",
+          "fontCharacter": "\\E001"
+        }
+      }
+    }
   },
   "dependencies": {
     "@intlify/unplugin-vue-i18n": "^0.8.1",
