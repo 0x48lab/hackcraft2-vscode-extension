@@ -1,5 +1,8 @@
 import * as vscode from 'vscode'
 import WebSocket from 'ws'
+import { KotlinParser, ExportedFunction } from './KotlinParser'
+import * as path from 'path'
+import * as fs from 'fs'
 
 interface Location {
 	x: number;
@@ -164,7 +167,7 @@ async function showConnectionMenu() {
 			await connect();
 		} else if (selected.label.includes('設定を開く')) {
 			// hackCraft2の設定画面を開く
-			await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:shibomb.hackcraft2');
+			await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:yokmama.hackcraft2');
 		}
 		return;
 	}
@@ -204,7 +207,7 @@ async function showConnectionMenu() {
 		await disconnect();
 	} else if (selected.label.includes('設定を開く')) {
 		// hackCraft2の設定画面を開く
-		await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:shibomb.hackcraft2');
+		await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:yokmama.hackcraft2');
 	}
 }
 
@@ -576,119 +579,91 @@ export function activate(context: vscode.ExtensionContext) {
 		return selectedEntity.entityUuid;
 	});
 
-	//auto complete 
-	const provider1 = vscode.languages.registerCompletionItemProvider('javascript', {
+	// Load Kotlin template file
+	const templatePath = path.join(context.extensionPath, 'resources', 'templates', 'kotlin', 'exported_functions.kt');
+	let exportedFunctions: ExportedFunction[] = [];
 
-		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
-			const entityCharacterCompletion = new vscode.CompletionItem('entity');
-			entityCharacterCompletion.commitCharacters = ['.'];
-			entityCharacterCompletion.documentation = new vscode.MarkdownString('Press `.` to get `entity.`');
+	try {
+		const templateContent = fs.readFileSync(templatePath, 'utf8');
+		exportedFunctions = KotlinParser.parseKotlinFile(templateContent);
+	} catch (error) {
+		logMessage('error', `Failed to load Kotlin template file: ${error}`);
+	}
 
-			const timeCharacterCompletion = new vscode.CompletionItem('time');
-			timeCharacterCompletion.commitCharacters = ['.'];
-			timeCharacterCompletion.documentation = new vscode.MarkdownString('Press `.` to get `time.`');
-
-			const consoleCharacterCompletion = new vscode.CompletionItem('console');
-			consoleCharacterCompletion.commitCharacters = ['.'];
-			consoleCharacterCompletion.documentation = new vscode.MarkdownString('Press `.` to get `console.`');
-			
-			return [
-				entityCharacterCompletion,timeCharacterCompletion,consoleCharacterCompletion
-			];
-		}
-	});
-
-	//todo このデータはTypeScriptの型定義ファイルから取得するようにしたい
-	const provider2 = vscode.languages.registerCompletionItemProvider(
-		'javascript',
+	// Register completion provider for all supported languages
+	const completionProvider = vscode.languages.registerCompletionItemProvider(
+		[
+			{ language: 'javascript', scheme: 'file' },
+			{ language: 'python', scheme: 'file' },
+			{ language: 'java', scheme: 'file' }
+		],
 		{
 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-
 				const linePrefix = document.lineAt(position).text.substr(0, position.character);
-				if (linePrefix.endsWith('entity.')) {
-					return [
-						createCompletionItem('isAI', 'isAI()', 'エンティティーのAIが有効になっているか返す', 'boolean'),
-						createCompletionItem('setAI', 'setAI(${1:arg1})', 'AIを有効にする', 'void'),
-						createCompletionItem('setup', 'setup()', 'エンティティーの位置をブロックにスナップし北を向いた状態で停止状態にする', 'void'),
-						createCompletionItem('teardown', 'teardown()', 'エンティティーを停止状態から解除します', 'void'),
-						createCompletionItem('getHeight', 'getHeight()', 'エンティティーの高さを返す', 'number'),
-						createCompletionItem('getWidth', 'getWidth()', 'エンティティーの幅を返す', 'number'),
-						createCompletionItem('getHealth', 'getHealth()', 'エンティティーの体力を返す','number'),
-						createCompletionItem('getName', 'getName()', 'エンティティーの名前を返す', 'string'),					
-						createCompletionItem('getType', 'getType()', 'エンティティーの種類を返す', 'string'),					
-						createCompletionItem('uniqueId', 'uniqueId()', 'エンティティーのUUID', 'string'),
-						createCompletionItem('getPosition', 'getPosition()', 'エンティティの位置を返す', 'Location'),
-						createCompletionItem('getDirection', 'getDirection()', 'エンティティーの向きを返す', 'Location'),
-						createCompletionItem('distance', 'distance(${1:x}, ${2:y}, ${3:z})', '指定された座標までの距離を返す', 'number'),
-						createCompletionItem('lookAt', 'lookAt(${1:ｘ}, ${2:y}, ${3:z})', '指定された座標を向く', 'void'),
-						createCompletionItem('lockOnTarget', 'lockOnTarget(${1:arg1})', 'ターゲットを攻撃する', 'void'),
-						createCompletionItem('teleport', 'teleport(${1:arg1}, ${2:arg2}, ${3:arg3})', '指定した場所に移動', 'void'),
-						createCompletionItem('move', 'move(${1:arg1})', '向いている方向に加速度を与える', 'boolean'),
-						createCompletionItem('turn', 'turn(${1:arg1})', '指定した角度だけ向きを変える', 'void'),
-						createCompletionItem('forward', 'forward()', '一歩前へ進む', 'boolean'),
-						createCompletionItem('back', 'back()', '一歩後ろへ進む', 'boolean'),
-						createCompletionItem('up', 'up()', '一歩上へ進む', 'boolean'),
-						createCompletionItem('down', 'down()', '一歩下へ進む', 'boolean'),
-						createCompletionItem('turnLeft', 'turnLeft()', '左を向く', 'void'),
-						createCompletionItem('turnRight()', 'turnRight()', '右を向く', 'void'),
-						createCompletionItem('stepLeft', 'stepLeft()', '一歩左へステップ', 'boolean'),
-						createCompletionItem('stepRight', 'stepRight()', '一歩右へステップ', 'boolean'),
-						createCompletionItem('jump', 'jump()', 'ジャンプする', 'boolean'),
-						createCompletionItem('grabItem', 'grabItem(${1:slot})', '指定されたスロットのアイテムを持つ', 'boolean'),
-						createCompletionItem('placeX', 'placeX(${1:height}, ${2:distance})', '持っているアイテムを指定された位置に置く', 'boolean'),
-						createCompletionItem('place', 'place()', '持っているアイテムを前に置く', 'boolean'),
-						createCompletionItem('placeDown', 'placeDown()', '持っているアイテムを下に置く', 'boolean'),
-						createCompletionItem('placeUp', 'placeUp()', '持っているアイテムを上に置く', 'boolean'),
-						createCompletionItem('actionX', 'actionX(${1:height}, ${2:distance})', '右クリックアクションを指定された位置にする', 'boolean'),
-						createCompletionItem('action', 'action()', '右クリックアクションを前にする', 'boolean'),
-						createCompletionItem('actionUp', 'actionUp()', '右クリックアクションを上にする', 'boolean'),
-						createCompletionItem('actionDown', 'actionDown()', '右クリックアクションを下にする', 'boolean'),
-						createCompletionItem('useItemX', 'useItem(${1:height}, ${2:distance})', '持っているアイテムを指定された位置に使う', 'boolean'),
-						createCompletionItem('useItem', 'useItem()', '指持っているアイテムを前に使う', 'boolean'),
-						createCompletionItem('useItemUp', 'useItemUp()', '指持っているアイテムを上に使う', 'boolean'),
-						createCompletionItem('useItemDown', 'useItemDown()', '指持っているアイテムを下に使う', 'boolean'),
-						createCompletionItem('digX', 'digX(${1:height}, ${2:distance})', '指定された位置を掘る', 'boolean'),
-						createCompletionItem('dig', 'dig()', '前を掘る', 'boolean'),
-						createCompletionItem('digDown', 'digDown()', '下を掘る', 'boolean'),
-						createCompletionItem('digUp', 'digUp()', '上を掘る', 'boolean'),
-						createCompletionItem('isBlockedX', 'isBlockedX(${1:height}, ${2:distance})', '指定された位置にブロックがあるかどうかを返す', 'boolean'),
-						createCompletionItem('isBlocked', 'isBlocked()', '前にブロックがあるかどうかを返す', 'boolean'),
-						createCompletionItem('isBlockedUp', 'isBlockedUp()', '上にブロックがあるかどうかを返す', 'boolean'),
-						createCompletionItem('isBlockedDown', 'isBlockedDown()', '下にブロックがあるかどうかを返す', 'boolean'),
-						createCompletionItem('meleeAttack', 'meleeAttack(${1:degrees})', '指定された向きを直接攻撃', 'boolean'),
-						createCompletionItem('rangedAttack', 'rangedAttack(${1:x}, ${2:y}, ${3:z})', '指定された位置へ遠隔攻撃', 'boolean'),
-						createCompletionItem('inspect', 'inspect(${1:height}, ${2:horizontal}, ${3:distance})', '自分の足元を中心に指定された位置のブロックの情報を返す', 'Block'),
-						createCompletionItem('scan', 'scan(${1:height}, ${2:horizontal}, ${3:distance})', '自分の足元を中心に指定された範囲のエンティティ情報を返す', 'Entity[]'),					
-						createCompletionItem('stop', 'stop()', '動かないようにする', 'void'),					
-						createCompletionItem('getItem', 'getItem(${1:slot})', '指定されたスロットのアイテム情報を返す', 'ItemStack'),
-						createCompletionItem('setItem', 'getItem(${1:slot}, ${2:item})', '指定されたスロットにアイテムを設定する', 'boolean'),
-						createCompletionItem('swapItem', 'swapItem(${1:slot1}, ${2:slot2})', '指定されたスロットのアイテムを交換する', 'boolean'),
-						createCompletionItem('dropItem', 'dropItem(${1:slot})', '指定されたスロットのアイテムをドロップする', 'boolean'),					
-						createCompletionItem('pickupItems', 'pickupItems()', '周辺のアイテムを拾う', 'number'),					
-						createCompletionItem('storeInChest', 'storeInChest(${1:height}, ${2:distance})', '指定された位置にあるインベントリにアイテムを格納する', 'boolean'),
+				
+				// First level completion (global objects)
+				if (!linePrefix.includes('.')) {
+					const items = [
+						createGlobalObjectCompletion('entity', 'ペットを制御するためのオブジェクト'),
+						createGlobalObjectCompletion('time', '時間を制御するためのオブジェクト'),
+						createGlobalObjectCompletion('console', 'コンソール出力を制御するためのオブジェクト'),
+						createGlobalObjectCompletion('system', 'システム機能を提供するオブジェクト'),
+						createGlobalObjectCompletion('crab', 'ペットを制御するためのオブジェクト（8x9Craft互換）')
 					];
+					return new vscode.CompletionList(items, false);
 				}
-				else if (linePrefix.endsWith('time.')) {
-					return [
-						createCompletionItem('sleep', 'sleep(${1:millisecond})', '指定されたミリ秒スリープする', 'void'),				
-					];
-				}
-				else if (linePrefix.endsWith('console.')) {
-					return [
-						createCompletionItem('log', 'log(${1:message})', 'コンソールに出力', 'void'),				
-					];
-				}
-				else {
+
+				// Second level completion (methods)
+				const globalObjects = ['system', 'entity', 'crab', 'time', 'console'];
+				const objectMatch = linePrefix.match(new RegExp(`(${globalObjects.join('|')})\\.`));
+				if (!objectMatch) {
 					return undefined;
 				}
+
+				const objectName = objectMatch[1];
+				let items: vscode.CompletionItem[] = [];
+
+				// Get functions from Kotlin template for system, entity, and crab
+				if (['system', 'entity', 'crab'].includes(objectName)) {
+					const objectFunctions = KotlinParser.getFunctionsByObject(exportedFunctions, objectName);
+					items = KotlinParser.createCompletionItems(objectFunctions);
+				}
+				// Add built-in functions for time and console
+				else if (objectName === 'time') {
+					items = [
+						createCompletionItem('sleep', 'sleep(${1:millisecond})', '指定されたミリ秒スリープする', 'void')
+					];
+				}
+				else if (objectName === 'console') {
+					items = [
+						createCompletionItem('log', 'log(${1:message})', 'コンソールに出力', 'void')
+					];
+				}
+
+				// Set priority for our completion items
+				items.forEach(item => {
+					item.sortText = '0' + item.label;
+					item.preselect = true;
+				});
+
+				return new vscode.CompletionList(items, true);
 			}
 		},
 		'.' // triggered whenever a '.' is being typed
 	);
 
+	// Helper function to create global object completion items
+	function createGlobalObjectCompletion(name: string, description: string): vscode.CompletionItem {
+		const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Variable);
+		item.commitCharacters = ['.'];
+		item.documentation = new vscode.MarkdownString(description);
+		item.detail = 'Global Object';
+		item.sortText = '0' + name;
+		return item;
+	}
+
 	context.subscriptions.push(
-		provider1,
-		provider2,
+		completionProvider,  // Replace provider1 and provider2 with the new unified provider
 		showConnectionMenuCommand,
 		getSelectedEntityUuidCommand,
 		statusBarItem

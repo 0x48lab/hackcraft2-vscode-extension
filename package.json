@@ -3,10 +3,10 @@
   "displayName": "hackCraft2",
   "description": "hackCraft2 client for Minecraft programming",
   "version": "1.0.9",
-  "publisher": "shibomb",
+  "publisher": "yokmama",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shibomb/hackcraft2-vscode-extension"
+    "url": "https://github.com/yokmama/hackcraft2-vscode-extension"
   },
   "icon": "resources/icon/hackcraft2.png",
   "engines": {
@@ -29,7 +29,8 @@
     "*",
     "onLanguage:typescript",
     "onLanguage:javascript",
-    "onLanguage:python"
+    "onLanguage:python",
+    "onLanguage:kotlin"
   ],
   "main": "./dist/extension.js",
   "scripts": {
@@ -235,6 +236,12 @@
         "id": "java",
         "extensions": [".java"],
         "aliases": ["Java", "java"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "kotlin",
+        "extensions": [".kt"],
+        "aliases": ["Kotlin", "kotlin"],
         "configuration": "./language-configuration.json"
       }
     ],
