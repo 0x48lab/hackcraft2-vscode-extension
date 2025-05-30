@@ -1,43 +1,60 @@
 # 8x9craft2 Extension
 
-8x9craft2 vscode entension.
+<p align="center">
+  <img src="./Screenshot.png" width="350" alt="Screenshot of 8x9craft2">
+</p>
 
-# Prepare:
+8x9craft2のVSCode拡張機能です。Minecraftでプログラミングを楽しむためのツールです。
 
-## 1. Show vscode extension view
+## 準備
 
-- In Vscode
-- Open your project folder.
-- Navigate to the extension icon seen on the left sidebar (or open command palette (`Ctrl/Cmd + Shift + P`) and select `8x9craft: Focus 8x9craft2-view  Extension View` to open webview view.)
-- Recommended: move view panel to Right-side on vscode window.
+### 1. 拡張機能のインストール
 
-## 2. Get server address
+1. VSCodeを開く
+2. 拡張機能タブ（Ctrl/Cmd + Shift + X）を開く
+3. "8x9craft2" を検索
+4. インストールボタンをクリック
 
-- a) run your minecraft spigot server with 8x9craft2 pulugin.
-  e.g. "localhost:25569"
-- b) get from teacher.
-  e.g. "192.168.xxx.xxx:25569"
+### 2. 拡張機能ビューの表示
 
-## 3. Start Multi Play
+- VSCodeの左サイドバーにある8x9craft2アイコンをクリック
+- または、コマンドパレット（`Ctrl/Cmd + Shift + P`）を開き、`8x9craft2: Focus 8x9craft2-view` を選択
+- 推奨: ビューパネルをVSCodeウィンドウの右側に移動すると使いやすいです
 
-- In minecraft java edition.
-- Start multi play.
+### 3. サーバーアドレスの取得
 
-# Programming and Run:
+以下のいずれかの方法でサーバーアドレスを取得してください：
 
-## 0. Connect to server from extension
+- a) 8x9craft2プラグインがインストールされたMinecraftサーバーを起動
+  - 例: "localhost:25570"
+- b) 先生から提供されたアドレスを使用
+  - 例: "192.168.xxx.xxx:25570"
 
-- In Vscode 8x9craft2 extension view
-- Input "Server Address" and your minecraft "Player Id"
-- and click Connect button to login and get your entities.
+### 4. Minecraftの起動
 
-## 1. Enjoy Programming!
+1. Minecraft Java Editionを起動
+2. マルチプレイを開始
 
-- In Vscode
-- Create your code with Typescript, JavaScript or Python.  
-  Like this:
+## プログラミングと実行
 
-```javascript:loopwalk.js
+### 1. サーバーへの接続
+
+1. VSCodeの8x9craft2拡張機能ビューで
+2. "Server Address"にサーバーアドレスを入力
+3. "Player Id"にMinecraftのプレイヤーIDを入力
+4. "Connect"ボタンをクリックしてログインし、エンティティを取得
+
+### 2. プログラミングを始めましょう！
+
+VSCodeで以下の言語を使ってプログラミングができます：
+- TypeScript (.ts)
+- JavaScript (.js)
+- Python (.py)
+
+例：
+
+```javascript
+// 4x4の正方形を描く
 for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
         entity.forward()
@@ -46,18 +63,35 @@ for (let i = 0; i < 4; i++) {
 }
 ```
 
-- Save it with file extension for programming language ".ts", ".js" or ".py"
+### 3. 実行
 
-## 2. run!
+1. VSCodeの8x9craft2拡張機能ビューで
+2. 操作したいエンティティを選択
+3. "Run Script"ボタンをクリックして実行
+4. Minecraftで動作を確認！
 
-- In Vscode 8x9craft2 extension view
-- Select your entity.
-- Click Run Script button to run.
-- And check your Minecraft ;-)
+## サポートされている機能
 
-# References
+- 複数のプログラミング言語（TypeScript, JavaScript, Python）に対応
+- エンティティの操作（移動、回転など）
+- 3Dビューの表示
+- サーバー接続状態の管理
+- スクリプトの実行/停止
 
-- [8x9craft2](http://craft2.8x9.jp/ja/)
-- [8x9craft2 API ](http://wiki.craft2.8x9.jp/wiki/Category:APIs)
+## 参考リンク
 
+- [8x9craft2公式サイト](http://craft2.8x9.jp/ja/)
+- [8x9craft2 APIリファレンス](http://wiki.craft2.8x9.jp/wiki/Category:APIs)
 - [8x9.jp](http://8x9.jp/)
+
+## トラブルシューティング
+
+- 接続できない場合：
+  - サーバーアドレスとポート番号が正しいか確認
+  - Minecraftサーバーが起動しているか確認
+  - ファイアウォールの設定を確認
+
+- スクリプトが実行できない場合：
+  - エンティティが選択されているか確認
+  - サーバーに接続されているか確認
+  - コードに構文エラーがないか確認

@@ -33,13 +33,45 @@ Run the extension:
 
 - Enter `yarn watch` in the console
 - Press `f5` on the `extension.ts` to open a debug window (or select in menu "Debug" -> "Run Extension")
-- Navigate to the extension icon seen on the left sidebar (or open command palette (`Ctrl/Cmd + Shift + P`) and select `View: Vue 3 Base Extension` to open webview view.)
+- Navigate to the extension icon seen on the left sidebar (or open command palette (`Ctrl/Cmd + Shift + P`) and select `View: 8x9craft2` to open webview view.)
 
-Publish the extension:
+## Development Workflow
 
-- `npm install -g @vscode/vsce`
-- `vsce package`
-- `vsce publish`
+1. Make your changes
+2. Run tests: `yarn test` or `yarn test:ui` for visual test runner
+3. Lint and format: `yarn fix`
+4. Type check: `yarn typecheck`
+5. Build: `yarn compile`
+
+## Publishing
+
+### Manual Publishing
+
+1. Install vsce globally: `npm install -g @vscode/vsce`
+2. Package the extension: `yarn package`
+3. Publish to marketplace: `vsce publish`
+
+### Automated Publishing with GitHub Actions
+
+The extension is automatically published to the VSCode Marketplace when changes are pushed to the main branch. This is handled by GitHub Actions.
+
+To set up automated publishing:
+
+1. Get a Personal Access Token (PAT) from Azure DevOps:
+   - Go to [Azure DevOps](https://dev.azure.com/)
+   - Click your profile icon → Personal access tokens
+   - Create new token with Marketplace (Manage) scope
+   - Copy the generated token
+
+2. Add the token to GitHub repository secrets:
+   - Go to repository Settings → Secrets and variables → Actions
+   - Create new repository secret named `VSCE_PAT`
+   - Paste the PAT as the value
+
+The GitHub Action will automatically:
+- Build the extension
+- Run tests
+- Publish to VSCode Marketplace when changes are pushed to main
 
 ## Recommended VSCode Extensions
 
@@ -54,3 +86,4 @@ Publish the extension:
 - [UX Guidelines](https://code.visualstudio.com/api/ux-guidelines/overview)
 - [Webview view API](https://code.visualstudio.com/api/references/vscode-api#WebviewView)
 - [Theme Guidelines](https://code.visualstudio.com/api/references/theme-color)
+- [8x9craft2 API](http://wiki.craft2.8x9.jp/wiki/Category:APIs)

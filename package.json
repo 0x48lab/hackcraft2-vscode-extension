@@ -2,8 +2,8 @@
   "name": "hackcraft2",
   "displayName": "hackCraft2",
   "description": "hackCraft2 client for Minecraft programming",
-  "version": "1.0.9",
-  "publisher": "yokmama",
+  "version": "1.0.10",
+  "publisher": "masafumiterazono",
   "repository": {
     "type": "git",
     "url": "git@github.com:0x48lab/hackcraft2-vscode-extension.git"
