@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import { BaseViewProvider } from './BaseViewProvider'
+import WebSocket from 'ws'
 
 interface Location {
 	x: number;
@@ -20,11 +21,17 @@ interface Block {
 }
 
 interface Entity {
+	ownerUuid: string;
+	entityUuid: string;
 	name: string;
-	uuid: string;
+	type: string;
+	isCreativeMode: boolean;
+	movementSpeed: number;
+	maxHealth: number;
 	x: number;
 	y: number;
 	z: number;
+	world: string;
 }
 
 interface ItemStack {
@@ -33,6 +40,286 @@ interface ItemStack {
 	amount: number;
 }
 
+interface LoggedData {
+	playerUUID: string;
+	world: string;
+	player_name: string;
+	isOp: boolean;
+	host: string;
+	port: number;
+	ssl: boolean;
+	monacoPort: number;
+	scratchPort: number;
+	entities: Entity[];
+	level: number;
+}
+
+let statusBarItem: vscode.StatusBarItem;
+let ws: WebSocket | null = null;
+let isConnected = false;
+let entities: Entity[] = [];
+let selectedEntity: Entity | null = null;
+let logChannel: vscode.LogOutputChannel;
+let isRunning = false;
+
+function initializeLogChannel() {
+	if (!logChannel) {
+		logChannel = vscode.window.createOutputChannel("hackCraft2", { log: true });
+		// Show the output channel immediately
+		logChannel.show(true);
+		logMessage('info', 'hackCraft2 extension activated');
+	}
+}
+
+function logMessage(level: 'info' | 'warn' | 'error', message: string) {
+	if (!logChannel) {
+		initializeLogChannel();
+	}
+	logChannel[level](message);
+}
+
+function updateStatusBarItems() {
+	if (!statusBarItem) {
+		statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+		statusBarItem.command = 'hackcraft2.showConnectionMenu';
+	}
+
+	if (isConnected) {
+		if (selectedEntity) {
+			// 一時的に直接日本語を使用
+			statusBarItem.text = `$(plug) hackCraft2: ${selectedEntity.name} (${selectedEntity.type})`;
+			statusBarItem.tooltip = 'クリックして接続メニューを表示';
+		} else {
+			statusBarItem.text = `$(plug) hackCraft2: 接続中`;
+			statusBarItem.tooltip = 'クリックして接続メニューを表示';
+		}
+	} else {
+		statusBarItem.text = `$(plug) hackCraft2: 未接続`;
+		statusBarItem.tooltip = 'クリックしてhackCraft2サーバーに接続';
+	}
+	statusBarItem.show();
+}
+
+async function showConnectionMenu() {
+	if (!isConnected) {
+		logMessage('info', 'サーバーに接続中...');
+		await connect();
+		return;
+	}
+
+	const items: vscode.QuickPickItem[] = [
+		{
+			label: `$(person) エンティティを選択`,
+			description: '制御するエンティティを選択',
+			detail: selectedEntity 
+				? `現在: ${selectedEntity.name} (${selectedEntity.type})`
+				: 'エンティティが選択されていません'
+		},
+		{
+			label: `$(plug) 切断`,
+			description: 'サーバーから切断',
+			detail: '現在の接続を閉じる'
+		}
+	];
+
+	const selected = await vscode.window.showQuickPick(items, {
+		placeHolder: '接続メニュー',
+	});
+
+	if (!selected) {
+		return;
+	}
+
+	if (selected.label.includes('エンティティを選択')) {
+		await selectEntity();
+	} else if (selected.label.includes('切断')) {
+		await disconnect();
+	}
+}
+
+async function selectEntity() {
+	if (!isConnected) {
+		logMessage('error', 'サーバーに接続されていません');
+		vscode.window.showErrorMessage('サーバーに接続されていません');
+		return;
+	}
+
+	if (entities.length === 0) {
+		logMessage('warn', '利用可能なエンティティがありません');
+		vscode.window.showInformationMessage('利用可能なエンティティがありません');
+		return;
+	}
+
+	logMessage('info', `利用可能なエンティティ: ${entities.length}`);
+	const items = entities.map(entity => ({
+		label: entity.name,
+		description: `タイプ: ${entity.type}`,
+		detail: [
+			`位置: (${entity.x}, ${entity.y}, ${entity.z})`,
+			`体力: ${entity.maxHealth}`,
+			`クリエイティブ: ${entity.isCreativeMode}`
+		].join(' | '),
+		entity: entity
+	}));
+
+	const selected = await vscode.window.showQuickPick(items, {
+		placeHolder: '制御するエンティティを選択',
+		matchOnDescription: true,
+		matchOnDetail: true
+	});
+
+	if (selected) {
+		selectedEntity = selected.entity;
+		logMessage('info', `選択されたエンティティ: ${selectedEntity.name} (${selectedEntity.type})`);
+		updateStatusBarItems();
+		
+		// Send attach message to server
+		if (ws) {
+			const message = {
+				type: 'attach',
+				data: {
+					entityUuid: selectedEntity.entityUuid,
+				},
+			};
+			logMessage('info', `エンティティ ${selectedEntity.name} にアタッチメッセージを送信`);
+			ws.send(JSON.stringify(message));
+		}
+	}
+}
+
+async function connect() {
+	if (ws) {
+		ws.close();
+		ws = null;
+	}
+
+	const config = vscode.workspace.getConfiguration('8x9craft2');
+	const serverAddress = config.get('serverAddress', 'localhost:25570');
+	const playerId = config.get('playerId', '');
+
+	logMessage('info', `Connecting to server: ${serverAddress}`);
+
+	if (!playerId) {
+		logMessage('error', 'Player ID not set in settings');
+		vscode.window.showErrorMessage('Please set your player ID in settings');
+		return;
+	}
+
+	try {
+		ws = new WebSocket(`ws://${serverAddress}/ws`);
+		
+		ws.on('open', () => {
+			isConnected = true;
+			updateConnectionState(true);
+			entities = [];
+			selectedEntity = null;
+			updateStatusBarItems();
+			logMessage('info', 'Connected to server');
+			vscode.window.showInformationMessage('Connected to 8x9craft2 server');
+			
+			// Send login message
+			const message = {
+				type: 'login',
+				data: {
+					player: playerId,
+					clientType: 'main',
+				},
+			};
+			logMessage('info', `Sending login message for player: ${playerId}`);
+			ws?.send(JSON.stringify(message));
+		});
+
+		ws.on('close', () => {
+			isConnected = false;
+			updateConnectionState(false);
+			isRunning = false;
+			updateRunningState(false);
+			entities = [];
+			selectedEntity = null;
+			updateStatusBarItems();
+			logMessage('info', 'Disconnected from server');
+			vscode.window.showInformationMessage('Disconnected from 8x9craft2 server');
+		});
+
+		ws.on('error', (error) => {
+			isConnected = false;
+			updateConnectionState(false);
+			isRunning = false;
+			updateRunningState(false);
+			entities = [];
+			selectedEntity = null;
+			updateStatusBarItems();
+			logMessage('error', `Connection error: ${error.message}`);
+			vscode.window.showErrorMessage(`Connection error: ${error.message}`);
+		});
+
+		ws.on('message', (data) => {
+			const json = JSON.parse(data.toString());
+			logMessage('info', `Received message: ${data.toString()}`);
+			
+			if (json.type === 'logged') {
+				const loggedData = json.data as LoggedData;
+				logMessage('info', 'Login successful');
+				logMessage('info', `Player: ${loggedData.player_name}`);
+				logMessage('info', `World: ${loggedData.world}`);
+				logMessage('info', `Is OP: ${loggedData.isOp}`);
+				
+				// Update entities from logged data
+				entities = loggedData.entities;
+				logMessage('info', `Received ${entities.length} entities`);
+				
+				if (entities.length > 0 && !selectedEntity) {
+					// Auto-select first entity if none selected
+					selectedEntity = entities[0];
+					logMessage('info', `Auto-selected entity: ${selectedEntity.name} (${selectedEntity.type})`);
+					const message = {
+						type: 'attach',
+						data: {
+							entityUuid: selectedEntity.entityUuid,
+						},
+					};
+					logMessage('info', `Sending attach message for auto-selected entity: ${selectedEntity.name}`);
+					ws?.send(JSON.stringify(message));
+				}
+				updateStatusBarItems();
+			} else if (json.type === 'error') {
+				logMessage('error', `Server error: ${json.data}`);
+			}
+
+			// 実行状態の更新を処理
+			if (json.type === 'execute_start') {
+				isRunning = true;
+				updateRunningState(true);
+			} else if (json.type === 'execute_end' || json.type === 'execute_error') {
+				isRunning = false;
+				updateRunningState(false);
+			}
+		});
+
+	} catch (error) {
+		logMessage('error', `Failed to connect: ${error}`);
+		vscode.window.showErrorMessage(`Failed to connect: ${error}`);
+		isConnected = false;
+		updateConnectionState(false);
+		isRunning = false;
+		updateRunningState(false);
+		entities = [];
+		selectedEntity = null;
+		updateStatusBarItems();
+	}
+}
+
+async function disconnect() {
+	if (ws) {
+		ws.close();
+		ws = null;
+	}
+	isConnected = false;
+	updateConnectionState(false);
+	entities = [];
+	selectedEntity = null;
+	updateStatusBarItems();
+}
 
 function createCompletionItem(name: string, args: string, desc: string, returnType: string): vscode.CompletionItem {
 	const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Function);
@@ -42,7 +329,93 @@ function createCompletionItem(name: string, args: string, desc: string, returnTy
 	return item
 }
 
+async function runFile(language: 'python' | 'javascript' | 'java') {
+	if (!isConnected || !selectedEntity) {
+		logMessage('error', 'Not connected or no entity selected');
+		vscode.window.showErrorMessage('Please connect and select an entity first');
+		return;
+	}
+
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) {
+		logMessage('error', 'No active editor');
+		vscode.window.showErrorMessage('No active editor');
+		return;
+	}
+
+	const document = editor.document;
+	const fileLanguage = getLanguageFromFile(document.fileName);
+	if (!fileLanguage || fileLanguage !== language) {
+		logMessage('error', `File type does not match ${language}`);
+		vscode.window.showErrorMessage(`Please use a ${language} file`);
+		return;
+	}
+
+	const code = document.getText();
+	if (ws) {
+		const message = {
+			type: 'run',
+			data: {
+				language: language,
+				name: document.fileName,
+				entity: selectedEntity.entityUuid,
+				code: code,
+			},
+		};
+		logMessage('info', `Sending execute message for ${language}`);
+		ws.send(JSON.stringify(message));
+	}
+}
+
+// 実行状態を更新する関数
+function updateRunningState(running: boolean) {
+	isRunning = running;
+	// コマンドの有効/無効状態を更新
+	vscode.commands.executeCommand('setContext', 'hackcraft2.isRunning', running);
+}
+
+// 接続状態を更新する関数
+function updateConnectionState(connected: boolean) {
+	isConnected = connected;
+	// コマンドの有効/無効状態を更新
+	vscode.commands.executeCommand('setContext', 'hackcraft2.isConnected', connected);
+}
+
+// スクリプト停止コマンドの実装
+async function stopScript() {
+	if (!isConnected || !selectedEntity) {
+		logMessage('error', 'Not connected or no entity selected');
+		vscode.window.showErrorMessage('Please connect and select an entity first');
+		return;
+	}
+
+	if (ws) {
+		const message = {
+			type: 'stop',
+			data: {
+				entityUuid: selectedEntity.entityUuid,
+			},
+		};
+		logMessage('info', 'Sending stop message');
+		ws.send(JSON.stringify(message));
+	}
+}
+
 export function activate(context: vscode.ExtensionContext) {
+	// Initialize log channel first
+	initializeLogChannel();
+
+	// Create status bar items
+	updateStatusBarItems();
+
+	// Register commands
+	let showConnectionMenuCommand = vscode.commands.registerCommand('hackcraft2.showConnectionMenu', showConnectionMenu);
+	let getSelectedEntityUuidCommand = vscode.commands.registerCommand('hackcraft2.getSelectedEntityUuid', () => {
+		if (!selectedEntity) {
+			throw new Error('No entity selected');
+		}
+		return selectedEntity.entityUuid;
+	});
 
 	//auto complete 
 	const provider1 = vscode.languages.registerCompletionItemProvider('javascript', {
@@ -156,10 +529,62 @@ export function activate(context: vscode.ExtensionContext) {
 	const provider = new BaseViewProvider(context.extensionUri)
 
 	context.subscriptions.push(
-		provider1, provider2,
+		provider1,
+		provider2,
+		showConnectionMenuCommand,
+		getSelectedEntityUuidCommand,
+		statusBarItem,
 		vscode.window.registerWebviewViewProvider(
 			BaseViewProvider.viewType,
 			provider
 		)
-	)
+	);
+
+	// Register run commands
+	let runPythonCommand = vscode.commands.registerCommand('hackcraft2.runPython', () => runFile('python'));
+	let runJavaScriptCommand = vscode.commands.registerCommand('hackcraft2.runJavaScript', () => runFile('javascript'));
+	let runJavaCommand = vscode.commands.registerCommand('hackcraft2.runJava', () => runFile('java'));
+
+	context.subscriptions.push(
+		runPythonCommand,
+		runJavaScriptCommand,
+		runJavaCommand
+	);
+
+	// 初期状態の設定
+	updateConnectionState(false);
+	updateRunningState(false);
+
+	// 停止コマンドの登録
+	let stopScriptCommand = vscode.commands.registerCommand('hackcraft2.stopScript', stopScript);
+
+	context.subscriptions.push(
+		stopScriptCommand
+	);
+}
+
+export function deactivate() {
+	if (ws) {
+		ws.close();
+	}
+	if (statusBarItem) {
+		statusBarItem.dispose();
+	}
+	if (logChannel) {
+		logChannel.dispose();
+	}
+}
+
+function getLanguageFromFile(fileName: string): 'python' | 'javascript' | 'java' | null {
+	const extension = fileName.split('.').pop()?.toLowerCase();
+	switch (extension) {
+		case 'py':
+			return 'python';
+		case 'js':
+			return 'javascript';
+		case 'java':
+			return 'java';
+		default:
+			return null;
+	}
 }

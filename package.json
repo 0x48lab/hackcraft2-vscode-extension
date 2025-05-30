@@ -1,12 +1,12 @@
 {
-  "name": "8x9craft2",
-  "displayName": "8x9craft2",
-  "description": "8x9craft2 client",
+  "name": "hackcraft2",
+  "displayName": "hackCraft2",
+  "description": "hackCraft2 client for Minecraft programming",
   "version": "1.0.9",
   "publisher": "shibomb",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shibomb/8x9craft2-vscode-extension"
+    "url": "https://github.com/shibomb/hackcraft2-vscode-extension"
   },
   "icon": "resources/logo.png",
   "engines": {
@@ -47,23 +47,117 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "8x9craft2-view",
-          "title": "8x9craft2",
+          "id": "hackcraft2-view",
+          "title": "%view-title%",
           "icon": "resources/icon/default.png"
         }
       ]
     },
     "views": {
-      "8x9craft2-view": [
+      "hackcraft2-view": [
         {
           "type": "webview",
-          "id": "8x9craft-view-sidebar",
-          "name": "8x9craft2-view Extension",
+          "id": "hackcraft2-view-sidebar",
+          "name": "%view-logs-title%",
           "icon": "resources/icon/default.png",
-          "contextualTitle": "8x9craft2 Extension"
+          "contextualTitle": "%view-logs-contextual-title%"
         }
       ]
     },
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "hackcraft2.runPython",
+          "when": "resourceLangId == python",
+          "group": "hackcraft2@1"
+        },
+        {
+          "command": "hackcraft2.runJavaScript",
+          "when": "resourceLangId == javascript",
+          "group": "hackcraft2@1"
+        },
+        {
+          "command": "hackcraft2.runJava",
+          "when": "resourceLangId == java",
+          "group": "hackcraft2@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "hackcraft2.runPython",
+          "when": "editorLangId == python",
+          "group": "hackcraft2@1"
+        },
+        {
+          "command": "hackcraft2.runJavaScript",
+          "when": "editorLangId == javascript",
+          "group": "hackcraft2@1"
+        },
+        {
+          "command": "hackcraft2.runJava",
+          "when": "editorLangId == java",
+          "group": "hackcraft2@1"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "hackcraft2.runPython",
+          "when": "editorLangId == python && hackcraft2.isConnected && !hackcraft2.isRunning",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hackcraft2.runJavaScript",
+          "when": "editorLangId == javascript && hackcraft2.isConnected && !hackcraft2.isRunning",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hackcraft2.runJava",
+          "when": "editorLangId == java && hackcraft2.isConnected && !hackcraft2.isRunning",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hackcraft2.stopScript",
+          "when": "hackcraft2.isConnected && hackcraft2.isRunning",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "hackcraft2.showConnectionMenu",
+        "title": "%command-show-connection-menu%",
+        "category": "hackCraft2"
+      },
+      {
+        "command": "hackcraft2.getSelectedEntityUuid",
+        "title": "%command-get-selected-entity-uuid%",
+        "category": "hackCraft2"
+      },
+      {
+        "command": "hackcraft2.runPython",
+        "title": "%command-run-python%",
+        "category": "hackCraft2",
+        "icon": "$(play)"
+      },
+      {
+        "command": "hackcraft2.runJavaScript",
+        "title": "%command-run-javascript%",
+        "category": "hackCraft2",
+        "icon": "$(play)"
+      },
+      {
+        "command": "hackcraft2.runJava",
+        "title": "%command-run-java%",
+        "category": "hackCraft2",
+        "icon": "$(play)"
+      },
+      {
+        "command": "hackcraft2.stopScript",
+        "title": "%command-stop-script%",
+        "category": "hackCraft2",
+        "icon": "$(stop)"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "%configuration-title%",
@@ -77,7 +171,7 @@
             "info",
             "debug"
           ],
-          "description": "configuration-log-level-description"
+          "description": "%configuration-log-level-description%"
         },
         "8x9craft2.serverAddress": {
           "type": "string",
@@ -98,9 +192,44 @@
           "type": "string",
           "default": "",
           "description": "%configuration-player-id-history-description%"
+        },
+        "8x9craft2.projectType": {
+          "type": "string",
+          "enum": ["hackCraft2"],
+          "default": "hackCraft2",
+          "description": "%configuration-project-type-description%"
+        },
+        "8x9craft2.supportedLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["python", "javascript", "java"]
+          },
+          "default": ["python", "javascript", "java"],
+          "description": "%configuration-supported-languages-description%"
         }
       }
-    }
+    },
+    "languages": [
+      {
+        "id": "python",
+        "extensions": [".py"],
+        "aliases": ["Python", "py"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "javascript",
+        "extensions": [".js"],
+        "aliases": ["JavaScript", "javascript", "js"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "java",
+        "extensions": [".java"],
+        "aliases": ["Java", "java"],
+        "configuration": "./language-configuration.json"
+      }
+    ]
   },
   "dependencies": {
     "@intlify/unplugin-vue-i18n": "^0.8.1",
